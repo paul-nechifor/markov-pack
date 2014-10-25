@@ -1,0 +1,23 @@
+{
+  "name": "markov-pack",
+  "version": "0.0.0",
+  "author": "Paul Nechifor <paul@nechifor.net> (http://nechifor.net/)",
+  "description": "Generate and use compacted Markov chains.",
+  "main": "./lib",
+  "scripts": {
+    "preinstall": "rm -fr lib; coffee -cbo lib src",
+    "test": "mocha --compilers coffee:coffee-script/register"
+  },
+  "dependencies": {
+    "coffee-script": "^1.8.0"
+  },
+  "devDependencies": {
+    "chai": "^1.9.2",
+    "mocha": "^2.0.1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/paul-nechifor/markov-pack"
+  },
+  "license": "MIT"
+}
