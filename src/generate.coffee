@@ -33,3 +33,19 @@ exports.getWords = (chain) ->
     for w of pos
       words[w] = true
   Object.keys(words).sort()
+
+exports.getLengths = (words) ->
+  return [] if words.length is 0
+  ret = []
+  last = -1
+  count = -1
+  for word in words
+    if word.length is last
+      count++
+      continue
+    unless last is -1
+      ret.push [last, count]
+    last = word.length
+    count = 1
+  ret.push [last, count]
+  ret

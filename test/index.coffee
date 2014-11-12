@@ -44,3 +44,11 @@ describe 'generate', ->
     it 'should include empty words', ->
       generate.getWords exampleChain1
       .should.deep.equal '-a-b-c-cc-ddddd'.split '-'
+
+  describe '#getLengths', ->
+    it 'should include empty words', ->
+      generate.getLengths generate.getWords exampleChain1
+      .should.deep.equal [[0, 1], [1, 3], [2, 1], [5, 1]]
+    it 'ignore empty lists', ->
+      generate.getLengths []
+      .should.deep.equal []
