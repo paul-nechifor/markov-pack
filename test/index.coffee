@@ -82,3 +82,20 @@ describe 'generate', ->
         0, 0, 0, 5
         0, 0, 0, 1
       ]
+    it 'should work with larger lists', ->
+      generate.getHeader generate.getLengths wordList1
+      .should.deep.equal new Uint8Array [
+        0, 0, 0, 4
+
+        0, 0, 0, 1
+        0, 0, 0, 9
+
+        0, 0, 0, 2
+        0, 0, 0, 90
+
+        0, 0, 0, 3
+        0, 0, 3, 135
+
+        0, 0, 0, 4
+        0, 0, 0, 201
+      ]
