@@ -8,7 +8,9 @@ exports.splitSentence = (s) ->
   ret
 
 exports.addToChain = (chain, seq) ->
-  for i in [0 .. seq.length - 3]
+  len = seq.length
+  return if len < 3
+  for i in [0 .. len - 3]
     key = seq[i] + '\t' + seq[i + 1]
     word = seq[i + 2]
     next = chain[key]

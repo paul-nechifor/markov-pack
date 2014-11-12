@@ -22,3 +22,9 @@ describe 'generate', ->
         'b\tc': {b: 1, c: 1}
         'c\tb': {c: 2}
         'c\tc': {b: 1}
+    it 'should ignore lists with too few elements', ->
+      chain = {}
+      generate.addToChain chain, ['a', 'b']
+      chain.should.deep.equal {}
+      generate.addToChain chain, []
+      chain.should.deep.equal {}
