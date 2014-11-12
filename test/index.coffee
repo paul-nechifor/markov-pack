@@ -28,3 +28,8 @@ describe 'generate', ->
       chain.should.deep.equal {}
       generate.addToChain chain, []
       chain.should.deep.equal {}
+    it 'should not allow the tab char in words', ->
+      fn = -> generate.addToChain {}, ['a', 'b', 'aa\t']
+      fn.should.throw Error, 'tab-not-allowed'
+      fn = -> generate.addToChain {}, ['a', '\tb', 'cc', 'ddd']
+      fn.should.throw Error, 'tab-not-allowed'

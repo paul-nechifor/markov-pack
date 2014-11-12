@@ -10,6 +10,8 @@ exports.splitSentence = (s) ->
 exports.addToChain = (chain, seq) ->
   len = seq.length
   return if len < 3
+  for word in seq
+    throw new Error 'tab-not-allowed' if /\t/.exec word
   for i in [0 .. len - 3]
     key = seq[i] + '\t' + seq[i + 1]
     word = seq[i + 2]
