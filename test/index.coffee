@@ -1,11 +1,19 @@
 generate = require '../src/generate'
 require('chai').should()
 
+createWordList = (n) ->
+  ret = []
+  for i in [1 .. n]
+    ret.push '' + i
+  ret
+
 exampleChain1 =
   '\t': {a: 2}
   '\ta': {cc: 2, a: 1}
   'a\t': {c: 2, ddddd: 4}
   'a\tcc': {b: 1}
+
+wordList1 = createWordList 1200
 
 describe 'generate', ->
   describe '#splitSentence', ->
@@ -49,6 +57,9 @@ describe 'generate', ->
     it 'should include empty words', ->
       generate.getLengths generate.getWords exampleChain1
       .should.deep.equal [[0, 1], [1, 3], [2, 1], [5, 1]]
+    it 'should work with larger lists', ->
+      generate.getLengths wordList1
+      .should.deep.equal [[1, 9], [2, 90], [3, 900], [4, 201]]
     it 'ignore empty lists', ->
       generate.getLengths []
       .should.deep.equal []
