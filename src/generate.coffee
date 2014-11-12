@@ -23,3 +23,13 @@ exports.addToChain = (chain, seq) ->
     else
       next[word]++
   return
+
+exports.getWords = (chain) ->
+  words = {}
+  for key, pos of chain
+    w2 = key.split '\t'
+    words[w2[0]] = true
+    words[w2[1]] = true
+    for w of pos
+      words[w] = true
+  Object.keys(words).sort()

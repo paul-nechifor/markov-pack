@@ -1,6 +1,12 @@
 generate = require '../src/generate'
 require('chai').should()
 
+exampleChain1 =
+  '\t': {a: 2}
+  '\ta': {cc: 2, a: 1}
+  'a\t': {c: 2, ddddd: 4}
+  'a\tcc': {b: 1}
+
 describe 'generate', ->
   describe '#splitSentence', ->
     it 'should ignore multiple spaces', ->
@@ -33,3 +39,8 @@ describe 'generate', ->
       fn.should.throw Error, 'tab-not-allowed'
       fn = -> generate.addToChain {}, ['a', '\tb', 'cc', 'ddd']
       fn.should.throw Error, 'tab-not-allowed'
+
+  describe '#getWords', ->
+    it 'should include empty words', ->
+      generate.getWords exampleChain1
+      .should.deep.equal '-a-b-c-cc-ddddd'.split '-'
