@@ -49,3 +49,18 @@ exports.getLengths = (words) ->
     count = 1
   ret.push [last, count]
   ret
+
+exports.getHeader = (lengths) ->
+  bytesPerNumber = 4
+  ret = new Uint8Array bytesPerNumber * (1 + 2 * lengths.length)
+  writeInt32 ret, 0, lengths.length
+  for i in [0 .. lengths.length - 1]
+    s = bytesPerNumber * (1 + 2 * i)
+    writeInt32 ret, s, lengths[i][0]
+    writeInt32 ret, s + bytesPerNumber, lengths[i][1]
+  ret
+
+writeInt32 = (a, pos, n) ->
+  for i in [0 .. 3]
+    a[pos + 3 - i] = n % 0xff
+    n >>= 8
