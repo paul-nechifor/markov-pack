@@ -60,6 +60,12 @@ exports.getHeader = (lengths) ->
     writeInt32 ret, s + bytesPerNumber, lengths[i][1]
   ret
 
+exports.getWordToNumberMap = (words) ->
+  map = {}
+  for word, i in words
+    map[word] = i
+  map
+
 writeInt32 = (a, pos, n) ->
   for i in [0 .. 3]
     a[pos + 3 - i] = n % 0xff

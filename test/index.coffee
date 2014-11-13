@@ -99,3 +99,14 @@ describe 'generate', ->
         0, 0, 0, 4
         0, 0, 0, 201
       ]
+
+  describe '#getWordToNumberMap', ->
+    it 'should work with small lists', ->
+      generate.getWordToNumberMap generate.getWords exampleChain1
+      .should.deep.equal
+        '': 0
+        a: 1
+        b: 2
+        c: 3
+        cc: 4
+        ddddd: 5
