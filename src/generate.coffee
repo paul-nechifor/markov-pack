@@ -66,6 +66,26 @@ exports.getWordToNumberMap = (words) ->
     map[word] = i
   map
 
+exports.writeBinary = (v, start, size, n) ->
+  # The position of the first byte to be written.
+  startByte = start // 8
+  # The remaining bits left to write.
+  remaining = size - 8 + start % 8
+
+  # Write the first bits of the first byte. If this is an incomplete byte, it
+  # has to be shifted the other way.
+  v[startByte] |= if remaining > 0 then n >> remaining else n << -remaining
+
+  # Write all the whole bytes. These don't require using or.
+  while remaining >= 8
+    remaining -= 8
+    v[++startByte] = (n >> remaining) & 0xff
+  return if remaining is 0
+
+  # Write the last bites of the last byte.
+  v[++startByte] |= (n << (8 - remaining)) & 0xff
+  return
+
 writeInt32 = (a, pos, n) ->
   for i in [0 .. 3]
     a[pos + 3 - i] = n % 0xff

@@ -110,3 +110,22 @@ describe 'generate', ->
         c: 3
         cc: 4
         ddddd: 5
+
+  describe '#writeBinary', ->
+    it 'should work at start position', ->
+      checkConversion 4, 0, 24, (1 << 16) + (2 << 8) + (3 << 0), [1, 2, 3, 0]
+    it 'should work with single bytes', ->
+      checkConversion 1, 0, 8, 153, [153]
+    it 'should work with incomplete first byte', ->
+      checkConversion 1, 0, 4, 0xf, [0xf0]
+    it 'should work with incomplete last byte', ->
+      checkConversion 2, 0, 12, 0xfff, [0xff, 0xf0]
+    it 'should write a byte across alignment', ->
+      checkConversion 2, 4, 8, 0xff, [0x0f, 0xf0]
+    it 'should work with offsets', ->
+      checkConversion 3, 4, 16, 0xffff, [0x0f, 0xff, 0xf0]
+
+checkConversion = (vSize, start, size, n, vCorrect) ->
+  v = new Uint8Array vSize
+  generate.writeBinary v, start, size, n
+  v.should.deep.equal new Uint8Array vCorrect
