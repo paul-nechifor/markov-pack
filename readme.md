@@ -17,7 +17,9 @@ The chain has the following structure:
 
 ### `header`
 
-- `magicNumber` (4 bytes) - Includes version. Value TBD.
+- `magicNumber` (7 bytes) - 0x13e3ff45be9c06 (computed by running `echo
+  'markov-pack' | sha1sum | cut -c -14`)
+- `version` (1 byte) - For this first version it's 0x01.
 - `numberOfLengths` (4 bytes) - The number of unique word sizes.
 - `hashTableSize` (4 bytes) - The number of hashTable elements.
 - `nextsSize` (4 bytes) - The total size of the `chainNext` block (in bytes).

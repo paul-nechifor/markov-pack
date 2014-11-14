@@ -1,3 +1,6 @@
+exports.magicNumber =
+  version1: [0x13e3ff45, 0xbe9c0601]
+
 exports.splitSentence = (s) ->
   s = s.trim()
   if s[s.length - 1] in ['.', '!', '?']
