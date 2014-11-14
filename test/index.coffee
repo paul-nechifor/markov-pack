@@ -64,11 +64,13 @@ describe 'generate', ->
       generate.getLengths []
       .should.deep.equal []
 
-  describe '#getHeader', ->
-    it 'should generate the correct header', ->
-      generate.getHeader generate.getLengths generate.getWords exampleChain1
-      .should.deep.equal new Uint8Array [
-        0, 0, 0, 4
+  describe '#writePairOfLengths', ->
+    it 'should work with an offset', ->
+      lengths = generate.getLengths generate.getWords exampleChain1
+      v = new Uint8Array 4 * (1 + 2 * lengths.length)
+      generate.writePairOfLengths v, 32, lengths
+      v.should.deep.equal new Uint8Array [
+        0, 0, 0, 0
 
         0, 0, 0, 0
         0, 0, 0, 1
@@ -83,10 +85,10 @@ describe 'generate', ->
         0, 0, 0, 1
       ]
     it 'should work with larger lists', ->
-      generate.getHeader generate.getLengths wordList1
-      .should.deep.equal new Uint8Array [
-        0, 0, 0, 4
-
+      lengths = generate.getLengths wordList1
+      v = new Uint8Array 4 * 2 * lengths.length
+      generate.writePairOfLengths v, 0, lengths
+      v.should.deep.equal new Uint8Array [
         0, 0, 0, 1
         0, 0, 0, 9
 
@@ -94,7 +96,7 @@ describe 'generate', ->
         0, 0, 0, 90
 
         0, 0, 0, 3
-        0, 0, 3, 135
+        0, 0, 3, 132
 
         0, 0, 0, 4
         0, 0, 0, 201

@@ -50,23 +50,13 @@ exports.getLengths = (words) ->
   ret.push [last, count]
   ret
 
-exports.getHeader = (lengths) ->
-  bytesPerNumber = 4
-  ret = new Uint8Array bytesPerNumber * (1 + 2 * lengths.length)
-  writeInt32 ret, 0, lengths.length
-  for i in [0 .. lengths.length - 1]
-    s = bytesPerNumber * (1 + 2 * i)
-    writeInt32 ret, s, lengths[i][0]
-    writeInt32 ret, s + bytesPerNumber, lengths[i][1]
-  ret
-
 exports.getWordToNumberMap = (words) ->
   map = {}
   for word, i in words
     map[word] = i
   map
 
-exports.writeBinary = (v, start, size, n) ->
+exports.writeBinary = writeBinary = (v, start, size, n) ->
   # The position of the first byte to be written.
   startByte = start // 8
   # The remaining bits left to write.
@@ -86,7 +76,9 @@ exports.writeBinary = (v, start, size, n) ->
   v[++startByte] |= (n << (8 - remaining)) & 0xff
   return
 
-writeInt32 = (a, pos, n) ->
-  for i in [0 .. 3]
-    a[pos + 3 - i] = n % 0xff
-    n >>= 8
+exports.writePairOfLengths = (v, offset, lengths) ->
+  for pair, i in lengths
+    at = offset + 32 * 2 * i
+    writeBinary v, at, 32, pair[0]
+    writeBinary v, at + 32, 32, pair[1]
+  return
