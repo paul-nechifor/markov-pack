@@ -148,6 +148,14 @@ describe 'generate', ->
       checkConversion 10, 40, 32, 0x12345678,
           [0, 0, 0, 0, 0, 0x12, 0x34, 0x56, 0x78, 0]
 
+  describe '#writeWordList', ->
+    it 'should work with simple words', ->
+      v = new Uint8Array 11
+      generate.writeWordList v, 8, ['', 'a', 'bb', 'cc', 'dddd']
+      v.should.deep.equal new Uint8Array [
+        0, 97, 98, 98, 99, 99, 100, 100, 100, 100, 0
+      ]
+
 checkConversion = (vSize, start, size, n, vCorrect) ->
   v = new Uint8Array vSize
   generate.writeBinary v, start, size, n

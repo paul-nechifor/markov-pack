@@ -82,3 +82,11 @@ exports.writePairOfLengths = (v, offset, lengths) ->
     writeBinary v, at, 32, pair[0]
     writeBinary v, at + 32, 32, pair[1]
   return
+
+exports.writeWordList = (v, offset, words) ->
+  k = offset
+  for word in words
+    for c in word
+      writeBinary v, k, 8, c.charCodeAt 0
+      k += 8
+  return

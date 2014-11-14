@@ -42,9 +42,9 @@ of `lengthPair` with `numberOfLengths` elements.
 
 ### `wordList`
 
-A concatenation of all the unique words (encoded with UTF-8). The words appear
-ordered by their length and then sorted alphanumerically. Words of length 0 can
-exist (obviously only with count 1).
+A concatenation of all the unique words (only ASCII is supported for now). The
+words appear ordered by their length and then sorted alphanumerically. Words of
+length 0 can exist (obviously only with count 1).
 
 The size of this list is the sum of `wordLength` * `wordCount` for all elements
 in `pairOfLengths`.
