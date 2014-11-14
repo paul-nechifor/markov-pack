@@ -138,6 +138,15 @@ describe 'generate', ->
       checkConversion 3, 8, 9, 0x1ff, [0x00, 0xff, 0x80]
     it 'should work with 1 bit in the first and last byte', ->
       checkConversion 3, 7, 10, 0x3ff, [0x01, 0xff, 0x80]
+    it 'should be able to write 32 bits without an offset', ->
+      checkConversion 4, 0, 32, 0x12345678, [0x12, 0x34, 0x56, 0x78]
+    it 'should be able to write 32 bits with an aligned offset', ->
+      checkConversion 5, 8, 32, 0x12345678, [0x00, 0x12, 0x34, 0x56, 0x78]
+    it 'should be able to write 32 bits with a non aligned offset', ->
+      checkConversion 5, 4, 32, 0x12345678, [0x01, 0x23, 0x45, 0x67, 0x80]
+    it 'should be able to write 32 bits with a long offset', ->
+      checkConversion 10, 40, 32, 0x12345678,
+          [0, 0, 0, 0, 0, 0x12, 0x34, 0x56, 0x78, 0]
 
 checkConversion = (vSize, start, size, n, vCorrect) ->
   v = new Uint8Array vSize
