@@ -112,18 +112,30 @@ describe 'generate', ->
         ddddd: 5
 
   describe '#writeBinary', ->
-    it 'should work at start position', ->
-      checkConversion 4, 0, 24, (1 << 16) + (2 << 8) + (3 << 0), [1, 2, 3, 0]
+    it 'should work with aligned full bytes', ->
+      checkConversion 4, 0, 24, 0x010203, [0x01, 0x02, 0x03, 0x00]
     it 'should work with single bytes', ->
       checkConversion 1, 0, 8, 153, [153]
     it 'should work with incomplete first byte', ->
       checkConversion 1, 0, 4, 0xf, [0xf0]
+    it 'should work with incomplete offset first byte', ->
+      checkConversion 1, 2, 4, 0xf, [0x3c]
     it 'should work with incomplete last byte', ->
       checkConversion 2, 0, 12, 0xfff, [0xff, 0xf0]
     it 'should write a byte across alignment', ->
       checkConversion 2, 4, 8, 0xff, [0x0f, 0xf0]
-    it 'should work with offsets', ->
+    it 'should work with aligned offsets', ->
+      checkConversion 4, 8, 16, 0xffff, [0x00, 0xff, 0xff, 0x00]
+    it 'should work with non aligned offsets', ->
       checkConversion 3, 4, 16, 0xffff, [0x0f, 0xff, 0xf0]
+    it 'should work with 1 bit', ->
+      checkConversion 1, 4, 1, 1, [0x08]
+    it 'should work with 1 bit in first byte', ->
+      checkConversion 3, 7, 9, 0x1ff, [0x01, 0xff, 0x00]
+    it 'should work with 1 bit in last byte', ->
+      checkConversion 3, 8, 9, 0x1ff, [0x00, 0xff, 0x80]
+    it 'should work with 1 bit in the first and last byte', ->
+      checkConversion 3, 7, 10, 0x3ff, [0x01, 0xff, 0x80]
 
 checkConversion = (vSize, start, size, n, vCorrect) ->
   v = new Uint8Array vSize
