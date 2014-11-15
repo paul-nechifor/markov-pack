@@ -148,6 +148,10 @@ describe 'generate', ->
     it 'should be able to write 32 bits with a long offset', ->
       checkConversion 10, 40, 32, 0x12345678,
           [0, 0, 0, 0, 0, 0x12, 0x34, 0x56, 0x78, 0]
+    it 'should work with two writes', ->
+      checkConversion2 3, 0, 8, 0xff, 16, 8, 0xff, [0xff, 0x00, 0xff]
+    it 'should work with two same byte writes', ->
+      checkConversion2 1, 0, 2, 0x3, 6, 2, 0x3, [0xc3]
 
   describe '#writeWordList', ->
     it 'should work with simple words', ->
@@ -171,4 +175,10 @@ describe 'generate', ->
 checkConversion = (vSize, start, size, n, vCorrect) ->
   v = new Uint8Array vSize
   generate.writeBinary v, start, size, n
+  v.should.deep.equal new Uint8Array vCorrect
+
+checkConversion2 = (vSize, start1, size1, n1, start2, size2, n2, vCorrect) ->
+  v = new Uint8Array vSize
+  generate.writeBinary v, start1, size1, n1
+  generate.writeBinary v, start2, size2, n2
   v.should.deep.equal new Uint8Array vCorrect
