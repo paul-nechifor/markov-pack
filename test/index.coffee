@@ -162,46 +162,40 @@ describe 'generate', ->
       ]
 
   describe '#Header', ->
+    h = new generate.Header
     describe '#setWordLengthsLen', ->
       it 'should work with small lists', ->
-        header = new generate.Header
-        header.setWordLengthsLen generate.getLengths generate.getWords exampleChain1
-        header.wordLengthsLen.should.equal 4
+        h.setWordLengthsLen generate.getLengths generate.getWords exampleChain1
+        h.wordLengthsLen.should.equal 4
       it 'should work with big lists', ->
-        header = new generate.Header
-        header.setWordLengthsLen generate.getLengths wordList1
-        header.wordLengthsLen.should.equal 4
+        h.setWordLengthsLen generate.getLengths wordList1
+        h.wordLengthsLen.should.equal 4
     describe '#setWordSize', ->
       it 'should work with small lists', ->
-        header = new generate.Header
-        header.setWordSize wordList2
-        header.wordSize.should.equal 3
+        h.setWordSize wordList2
+        h.wordSize.should.equal 3
       it 'should work with big lists', ->
-        header = new generate.Header
-        header.setWordSize wordList1
-        header.wordSize.should.equal 11
+        h.setWordSize wordList1
+        h.wordSize.should.equal 11
     describe '#setChainLen', ->
       it 'should work with small chains', ->
-        header = new generate.Header
-        header.setChainLen exampleChain1
-        header.chainLen.should.equal 4
-        header.hashTableLen.should.equal 5
+        h.setChainLen exampleChain1
+        h.chainLen.should.equal 4
+        h.hashTableLen.should.equal 5
       it 'should work with big chains', ->
         chain = {}
         for i in [1 .. 1234]
           chain[i] = {'1': 1}
-        header = new generate.Header
-        header.setChainLen chain
-        header.chainLen.should.equal 1234
-        header.hashTableLen.should.equal 1523
+        h.setChainLen chain
+        h.chainLen.should.equal 1234
+        h.hashTableLen.should.equal 1523
     describe '#setContListAndWeightSizes', ->
       it 'should work with small chains', ->
-        header = new generate.Header
-        header.setContListAndWeightSizes
+        h.setContListAndWeightSizes
           a: {a: 1, b: 2, c: 3, d: 4, e: 5}
           b: {b: 1000, cc: 1}
-        header.contListSize.should.equal 3
-        header.weightSize.should.equal 10
+        h.contListSize.should.equal 3
+        h.weightSize.should.equal 10
 
 checkConversion = (vSize, start, size, n, vCorrect) ->
   v = new Uint8Array vSize
