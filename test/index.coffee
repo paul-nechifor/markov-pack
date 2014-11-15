@@ -14,6 +14,7 @@ exampleChain1 =
   'a\tcc': {b: 1}
 
 wordList1 = createWordList 1200
+wordList2 = ['', 'a', 'bb', 'cc', 'dddd']
 
 describe 'generate', ->
   describe '#splitSentence', ->
@@ -151,10 +152,21 @@ describe 'generate', ->
   describe '#writeWordList', ->
     it 'should work with simple words', ->
       v = new Uint8Array 11
-      generate.writeWordList v, 8, ['', 'a', 'bb', 'cc', 'dddd']
+      generate.writeWordList v, 8, wordList2
       v.should.deep.equal new Uint8Array [
         0, 97, 98, 98, 99, 99, 100, 100, 100, 100, 0
       ]
+
+  describe '#Header', ->
+    describe '#writeWordSize', ->
+      it 'should work with small lists', ->
+        header = new generate.Header
+        header.setWordSize wordList2
+        header.wordSize.should.equal 3
+      it 'should work with big lists', ->
+        header = new generate.Header
+        header.setWordSize wordList1
+        header.wordSize.should.equal 11
 
 checkConversion = (vSize, start, size, n, vCorrect) ->
   v = new Uint8Array vSize

@@ -1,3 +1,9 @@
+common = require './common'
+
+exports.Header = class Header extends common.Header
+  setWordSize: (wordList) ->
+    @wordSize = log2Ceil wordList.length
+    @wordTupleSize = @wordSize * 2
 
 exports.splitSentence = (s) ->
   s = s.trim()
@@ -91,3 +97,5 @@ exports.writeWordList = (v, offset, words) ->
       writeBinary v, k, 8, c.charCodeAt 0
       k += 8
   return
+
+log2Ceil = (n) -> Math.ceil Math.log(n) / Math.LN2
