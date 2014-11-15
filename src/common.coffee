@@ -16,3 +16,5 @@ exports.Header = class Header
     @offsetSize = -1
     @contListSize = -1
     @weightSize = -1
+
+  @size = 4 * (2 + 6)

@@ -25,6 +25,9 @@ exports.Header = class Header extends common.Header
     @contListSize = log2Ceil maxNConts
     @weightSize = log2Ceil maxWeight
 
+  getFullSize: ->
+    constructor.size # TODO Add the rest.
+
   writeInBinary: (v) ->
     writeBinary32s v, 0, [
       @magicNumber[0]
@@ -63,7 +66,7 @@ exports.addToChain = (chain, seq) ->
       next[word]++
   return
 
-exports.getWords = (chain) ->
+exports.getWords = getWords = (chain) ->
   words = {}
   for key, pos of chain
     w2 = key.split '\t'
@@ -73,7 +76,7 @@ exports.getWords = (chain) ->
       words[w] = true
   Object.keys(words).sort()
 
-exports.getLengths = (words) ->
+exports.getLengths = getLengths = (words) ->
   return [] if words.length is 0
   ret = []
   last = -1
@@ -89,7 +92,7 @@ exports.getLengths = (words) ->
   ret.push [last, count]
   ret
 
-exports.getWordToNumberMap = (words) ->
+exports.getWordToNumberMap = getWordToNumberMap = (words) ->
   map = {}
   for word, i in words
     map[word] = i
@@ -182,6 +185,23 @@ exports.writeHashTable = (header, v, table, start) ->
     writeBinary v, offset, header.wordTupleSize, e[0]
     writeBinary v, offset + header.wordTupleSize, header.offsetSize, e[1]
   return
+
+exports.generateBinary = (chain) ->
+  words = getWords chain
+  lengths = getLengths words
+  map = getWordToNumberMap words
+
+  header = new Header
+  header.setWordLengthsLen lengths
+  header.setWordSize words
+  header.setChainLen chain
+  header.setContListAndWeightSizes chain
+
+  binary = new Uint8Array header.getFullSize()
+
+  # TODO: Write all the data.
+
+  binary
 
 log2Ceil = (n) -> Math.ceil Math.log(n) / Math.LN2
 
