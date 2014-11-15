@@ -37,9 +37,18 @@ exports.Header = class Header extends common.Header
       nConts++ for x of conts
       offset += nConts * (@wordSize + @weightSize)
     @chainBytesLen = Math.ceil offset / 8
+    @offsetSize = log2Ceil offset
 
-  getFullSize: ->
-    constructor.size # TODO Add the rest.
+  setOffsets: (lengths) ->
+    @lengthsOffset = @constructor.size
+    @wordListOffset = @lengthsOffset + 4 * 2 * lengths.length
+    wordListLen = 0
+    for [wl, count] in lenghts
+      wordListLen += wl * count
+    @hashTableOffset = @wordListOffset + wordListLen
+    hashTableBytesLen = @hashTableLen * (@wordTupleSize + @offsetSize)
+    @chainOffset = @hashTableBytesLen + hashTableBytesLen
+    @totalByteSize = @chainOffset + @chainBytesLen
 
   writeInBinary: (v) ->
     writeBinary32s v, 0, [
@@ -206,8 +215,9 @@ exports.generateBinary = (chain) ->
   header.setWordSize words
   header.setChainLen chain
   header.setContListAndWeightSizes chain
+  header.setOffsets lengths
 
-  binary = new Uint8Array header.getFullSize()
+  binary = new Uint8Array header.totalByteSize
 
   # TODO: Write all the data.
 

@@ -17,4 +17,10 @@ exports.Header = class Header
     @contListSize = -1
     @weightSize = -1
 
+    @lengthsOffset = -1
+    @wordListOffset = -1
+    @hashTableOffset = -1
+    @chainOffset = -1
+    @totalByteSize = -1
+
   @size = 4 * (2 + 6)
