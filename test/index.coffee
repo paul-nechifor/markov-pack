@@ -70,37 +70,15 @@ describe 'generate', ->
       lengths = generate.getLengths generate.getWords exampleChain1
       v = new Uint8Array 4 * (1 + 2 * lengths.length)
       generate.writePairOfLengths v, 32, lengths
-      v.should.deep.equal new Uint8Array [
-        0, 0, 0, 0
-
-        0, 0, 0, 0
-        0, 0, 0, 1
-
-        0, 0, 0, 1
-        0, 0, 0, 3
-
-        0, 0, 0, 2
-        0, 0, 0, 1
-
-        0, 0, 0, 5
-        0, 0, 0, 1
+      v.should.deep.equal new Uint8Array split32in8 [
+        0, 0, 1, 1, 3, 2, 1, 5, 1
       ]
     it 'should work with larger lists', ->
       lengths = generate.getLengths wordList1
       v = new Uint8Array 4 * 2 * lengths.length
       generate.writePairOfLengths v, 0, lengths
-      v.should.deep.equal new Uint8Array [
-        0, 0, 0, 1
-        0, 0, 0, 9
-
-        0, 0, 0, 2
-        0, 0, 0, 90
-
-        0, 0, 0, 3
-        0, 0, 3, 132
-
-        0, 0, 0, 4
-        0, 0, 0, 201
+      v.should.deep.equal new Uint8Array split32in8 [
+        1, 9, 2, 90, 3, 900, 4, 201
       ]
 
   describe '#getWordToNumberMap', ->
