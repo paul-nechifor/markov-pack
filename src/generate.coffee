@@ -17,6 +17,11 @@ exports.Header = class Header extends common.Header
     @chainLen++ for key of chain
     @hashTableLen = nextPrime Math.ceil @chainLen * nextFactor
 
+  setWordListLen: (lengths) ->
+    @wordListLen = 0
+    for [wl, count] in lengths
+      @wordListLen += wl * count
+
   setContListAndWeightSizes: (chain) ->
     maxNConts = -1
     maxWeight = -1
@@ -40,15 +45,13 @@ exports.Header = class Header extends common.Header
     @offsetSize = log2Ceil offset
 
   setOffsets: (lengths) ->
-    @lengthsOffset = @constructor.size
-    @wordListOffset = @lengthsOffset + 4 * 2 * lengths.length
-    wordListLen = 0
-    for [wl, count] in lenghts
-      wordListLen += wl * count
-    @hashTableOffset = @wordListOffset + wordListLen
-    hashTableBytesLen = @hashTableLen * (@wordTupleSize + @offsetSize)
-    @chainOffset = @hashTableBytesLen + hashTableBytesLen
-    @totalByteSize = @chainOffset + @chainBytesLen
+    @lengthsOffset = 8 * @constructor.size
+    @wordListOffset = @lengthsOffset + 8 * 4 * 2 * lengths.length
+    @hashTableOffset = @wordListOffset + 8 * @wordListLen
+    hashTableBits = @hashTableLen * (@wordTupleSize + @offsetSize)
+    hashTableBits = Math.ceil (hashTableBits // 8) * 8
+    @chainOffset = @hashTableOffset + hashTableBits
+    @totalByteSize = Math.ceil (@chainOffset + 8 * @chainBytesLen) / 8
 
   writeInBinary: (v) ->
     writeBinary32s v, 0, [
@@ -96,7 +99,10 @@ exports.getWords = getWords = (chain) ->
     words[w2[1]] = true
     for w of pos
       words[w] = true
-  Object.keys(words).sort()
+  Object.keys(words).sort (a, b) ->
+    if a.length > b.length then 1
+    else if a.length < b.length then -1
+    else if a > b then 1 else if a < b then -1 else 0
 
 exports.getLengths = getLengths = (words) ->
   return [] if words.length is 0
@@ -168,7 +174,7 @@ exports.writeChain = writeChain = (header, v, chain, map) ->
 
   for tuple, cont of chain
     # Get the word tuple as a number tuple.
-    nTuple = getNumberTuple tuple
+    nTuple = getNumberTuple header.wordSize, tuple, map
 
     # Save the offset for this continuation.
     offsets[nTuple] = offset
@@ -193,15 +199,18 @@ exports.getHashTable = getHashTable = (offsets, length) ->
   v = []
   v.push null for i in [1 .. length]
   for tuple, offset of offsets
+    tuple = Number tuple
     hash = tuple % length
-    hash++ while v[hash] isnt 0
+    while v[hash] isnt null
+      hash = (hash + 1) % length
     v[hash] = [tuple, offset]
   v
 
 exports.writeHashTable = writeHashTable = (header, v, table) ->
   eSize = header.wordTupleSize + header.offsetSize
   for e, i in table
-    offset = eSize * i
+    continue if e is null
+    offset = header.hashTableOffset + eSize * i
     writeBinary v, offset, header.wordTupleSize, e[0]
     writeBinary v, offset + header.wordTupleSize, header.offsetSize, e[1]
   return
@@ -215,10 +224,13 @@ exports.generateBinary = (chain) ->
   header.setWordLengthsLen lengths
   header.setWordSize words
   header.setChainLen chain
+  header.setWordListLen lengths
   header.setContListAndWeightSizes chain
+  header.setChainBytesLen chain
   header.setOffsets lengths
 
   binary = new Uint8Array header.totalByteSize
+  header.writeInBinary binary
   writePairOfLengths binary, header.lengthsOffset, lengths
   writeWordList binary, header.wordListOffset, words
   offsets = writeChain header, binary, chain, map
