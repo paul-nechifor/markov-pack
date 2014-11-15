@@ -130,6 +130,42 @@ exports.writeWordList = (v, offset, words) ->
       k += 8
   return
 
+exports.getNumberTuple = getNumberTuple = (wordSize, tuple, map) ->
+  parts = tuple.split '\t'
+  (map[parts[0]] << wordSize) | map[parts[1]]
+
+exports.writeChain = (header, v, start, chain, map) ->
+  # Waste a byte so that offset 0 is never encountered. This is necessary since
+  # offset 0 is used in the hash table to indicate an unused position.
+  offset = 8
+
+  # A map from number tuple to continuation offset.
+  offsets = {}
+
+  for tuple, cont of chain
+    # Get the word tuple as a number tuple.
+    nTuple = getNumberTuple tuple
+
+    # Save the offset for this continuation.
+    offsets[nTuple] = offset
+
+    # Compute and save the number of continuations.
+    nConts = 0
+    nConts++ for x of cont
+    writeBinary v, start + offset, header.contListSize, nConts
+    offset += header.contListSize
+
+    # Write the number word and its weight.
+    for word, weight of cont
+      writeBinary v, offset, header.wordSize, map[word]
+      offset += header.wordSize
+      writeBinary v, offset, header.weightSize, weight
+      offset += header.weightSize
+
+  # Return the offsets map and total number of bytes that were used.
+  offsets: offsets
+  size: Math.ceil offset / 8
+
 log2Ceil = (n) -> Math.ceil Math.log(n) / Math.LN2
 
 nextPrime = (n) ->
