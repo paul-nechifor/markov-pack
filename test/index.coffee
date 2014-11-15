@@ -185,6 +185,14 @@ describe 'generate', ->
         header.setChainLen chain
         header.chainLen.should.equal 1234
         header.hashTableLen.should.equal 1523
+    describe '#setContListAndWeightSizes', ->
+      it 'should work with small chains', ->
+        header = new generate.Header
+        header.setContListAndWeightSizes
+          a: {a: 1, b: 2, c: 3, d: 4, e: 5}
+          b: {b: 1000, cc: 1}
+        header.contListSize.should.equal 3
+        header.weightSize.should.equal 10
 
 checkConversion = (vSize, start, size, n, vCorrect) ->
   v = new Uint8Array vSize

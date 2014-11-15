@@ -10,6 +10,18 @@ exports.Header = class Header extends common.Header
     @chainLen++ for key of chain
     @hashTableLen = nextPrime Math.ceil @chainLen * nextFactor
 
+  setContListAndWeightSizes: (chain) ->
+    maxNConts = -1
+    maxWeight = -1
+    for key, conts of chain
+      nConts = 0
+      for cont, weight of conts
+        nConts++
+        maxWeight = weight if weight > maxWeight
+      maxNConts = nConts if nConts > maxNConts
+    @contListSize = log2Ceil maxNConts
+    @weightSize = log2Ceil maxWeight
+
 exports.splitSentence = (s) ->
   s = s.trim()
   if s[s.length - 1] in ['.', '!', '?']
