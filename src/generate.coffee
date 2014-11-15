@@ -166,6 +166,15 @@ exports.writeChain = (header, v, start, chain, map) ->
   offsets: offsets
   size: Math.ceil offset / 8
 
+exports.getHashTable = (offsets, length) ->
+  v = []
+  v.push 0 for i in [1 .. length]
+  for tuple, offset of offsets
+    hash = tuple % length
+    hash++ while v[hash] isnt 0
+    v[hash] = offset
+  v
+
 log2Ceil = (n) -> Math.ceil Math.log(n) / Math.LN2
 
 nextPrime = (n) ->
