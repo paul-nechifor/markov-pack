@@ -4,12 +4,16 @@
   "author": "Paul Nechifor <paul@nechifor.net> (http://nechifor.net/)",
   "description": "Generate and use compacted Markov chains.",
   "main": "./lib",
+  "bin": {
+    "markov-pack": "./bin/markov-pack.js"
+  },
   "scripts": {
     "preinstall": "rm -fr lib; coffee -cbo lib src",
     "test": "mocha --compilers coffee:coffee-script/register"
   },
   "dependencies": {
-    "coffee-script": "^1.8.0"
+    "coffee-script": "^1.8.0",
+    "optimist": "^0.6.1"
   },
   "devDependencies": {
     "chai": "^1.9.2",
