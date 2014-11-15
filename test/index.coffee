@@ -162,7 +162,7 @@ describe 'generate', ->
       ]
 
   describe '#Header', ->
-    describe '#writeWordSize', ->
+    describe '#setWordSize', ->
       it 'should work with small lists', ->
         header = new generate.Header
         header.setWordSize wordList2
@@ -171,6 +171,7 @@ describe 'generate', ->
         header = new generate.Header
         header.setWordSize wordList1
         header.wordSize.should.equal 11
+    describe '#setChainLen', ->
       it 'should work with small chains', ->
         header = new generate.Header
         header.setChainLen exampleChain1
