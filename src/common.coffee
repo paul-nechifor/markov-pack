@@ -12,7 +12,7 @@ exports.Header = class Header
     @chainBytesLen = -1
 
     @wordSize = -1
-    @wordToupleSize = -1
+    @wordTupleSize = -1
     @offsetSize = -1
     @contListSize = -1
     @weightSize = -1

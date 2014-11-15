@@ -152,9 +152,11 @@ describe 'generate', ->
       it 'should work with small lists', ->
         h.setWordSize wordList2
         h.wordSize.should.equal 3
+        h.wordTupleSize.should.equal 6
       it 'should work with big lists', ->
         h.setWordSize wordList1
         h.wordSize.should.equal 11
+        h.wordTupleSize.should.equal 22
     describe '#setChainLen', ->
       it 'should work with small chains', ->
         h.setChainLen exampleChain1
@@ -182,7 +184,7 @@ describe 'generate', ->
         h.hashTableLen = 0x44444444
         h.chainBytesLen = 0x55555555
         h.wordSize = 0x66666666
-        h.wordToupleSize = 0x77777777
+        h.wordTupleSize = 0x77777777
         h.offsetSize = 0x88888888
         h.contListSize = 0x99999999
         h.weightSize = 0xaaaaaaaa
