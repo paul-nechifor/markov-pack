@@ -162,6 +162,15 @@ describe 'generate', ->
       ]
 
   describe '#Header', ->
+    describe '#setWordLengthsLen', ->
+      it 'should work with small lists', ->
+        header = new generate.Header
+        header.setWordLengthsLen generate.getLengths generate.getWords exampleChain1
+        header.wordLengthsLen.should.equal 4
+      it 'should work with big lists', ->
+        header = new generate.Header
+        header.setWordLengthsLen generate.getLengths wordList1
+        header.wordLengthsLen.should.equal 4
     describe '#setWordSize', ->
       it 'should work with small lists', ->
         header = new generate.Header

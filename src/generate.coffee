@@ -1,6 +1,9 @@
 common = require './common'
 
 exports.Header = class Header extends common.Header
+  setWordLengthsLen: (lengths) ->
+    @wordLengthsLen = lengths.length
+
   setWordSize: (wordList) ->
     @wordSize = log2Ceil wordList.length
     @wordTupleSize = @wordSize * 2
