@@ -140,14 +140,14 @@ exports.writeBinary = writeBinary = (v, start, size, n) ->
   v[++startByte] |= (n << (8 - remaining)) & 0xff
   return
 
-exports.writePairOfLengths = (v, offset, lengths) ->
+exports.writePairOfLengths = writePairOfLengths = (v, offset, lengths) ->
   for pair, i in lengths
     at = offset + 32 * 2 * i
     writeBinary v, at, 32, pair[0]
     writeBinary v, at + 32, 32, pair[1]
   return
 
-exports.writeWordList = (v, offset, words) ->
+exports.writeWordList = writeWordList = (v, offset, words) ->
   k = offset
   for word in words
     for c in word
@@ -159,8 +159,9 @@ exports.getNumberTuple = getNumberTuple = (wordSize, tuple, map) ->
   parts = tuple.split '\t'
   (map[parts[0]] << wordSize) | map[parts[1]]
 
-exports.writeChain = (header, v, start, chain, map) ->
+exports.writeChain = writeChain = (header, v, chain, map) ->
   offset = OFFSET_WASTE
+  start = header.chainOffset
 
   # A map from number tuple to continuation offset.
   offsets = {}
@@ -180,15 +181,15 @@ exports.writeChain = (header, v, start, chain, map) ->
 
     # Write the number word and its weight.
     for word, weight of cont
-      writeBinary v, offset, header.wordSize, map[word]
+      writeBinary v, start + offset, header.wordSize, map[word]
       offset += header.wordSize
-      writeBinary v, offset, header.weightSize, weight
+      writeBinary v, start + offset, header.weightSize, weight
       offset += header.weightSize
 
   # Return the offsets map.
   offsets
 
-exports.getHashTable = (offsets, length) ->
+exports.getHashTable = getHashTable = (offsets, length) ->
   v = []
   v.push null for i in [1 .. length]
   for tuple, offset of offsets
@@ -197,7 +198,7 @@ exports.getHashTable = (offsets, length) ->
     v[hash] = [tuple, offset]
   v
 
-exports.writeHashTable = (header, v, table, start) ->
+exports.writeHashTable = writeHashTable = (header, v, table) ->
   eSize = header.wordTupleSize + header.offsetSize
   for e, i in table
     offset = eSize * i
@@ -218,9 +219,11 @@ exports.generateBinary = (chain) ->
   header.setOffsets lengths
 
   binary = new Uint8Array header.totalByteSize
-
-  # TODO: Write all the data.
-
+  writePairOfLengths binary, header.lengthsOffset, lengths
+  writeWordList binary, header.wordListOffset, words
+  offsets = writeChain header, binary, chain, map
+  table = getHashTable offsets, header.hashTableLen
+  writeHashTable header, binary, table
   binary
 
 log2Ceil = (n) -> Math.ceil Math.log(n) / Math.LN2
