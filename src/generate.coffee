@@ -168,12 +168,20 @@ exports.writeChain = (header, v, start, chain, map) ->
 
 exports.getHashTable = (offsets, length) ->
   v = []
-  v.push 0 for i in [1 .. length]
+  v.push null for i in [1 .. length]
   for tuple, offset of offsets
     hash = tuple % length
     hash++ while v[hash] isnt 0
-    v[hash] = offset
+    v[hash] = [tuple, offset]
   v
+
+exports.writeHashTable = (header, v, table, start) ->
+  eSize = header.wordTupleSize + header.offsetSize
+  for e, i in table
+    offset = eSize * i
+    writeBinary v, offset, header.wordTupleSize, e[0]
+    writeBinary v, offset + header.wordTupleSize, header.offsetSize, e[1]
+  return
 
 log2Ceil = (n) -> Math.ceil Math.log(n) / Math.LN2
 
