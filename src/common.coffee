@@ -1,10 +1,9 @@
-exports.magicNumber =
-  version1: [0x13e3ff45, 0xbe9c0601]
+exports.magicNumber = [0x13e3ff45, 0xbe9c06]
 
 exports.Header = class Header
   constructor: ->
-    @magicNumber = exports.magicNumber.version1
-    @version = @magicNumber[1] & 0xff
+    @magicNumber = exports.magicNumber
+    @version = 1
 
     @wordLengthsLen = -1
     @chainLen = -1
