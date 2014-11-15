@@ -5,6 +5,11 @@ exports.Header = class Header extends common.Header
     @wordSize = log2Ceil wordList.length
     @wordTupleSize = @wordSize * 2
 
+  setChainLen: (chain, nextFactor=1.234) ->
+    @chainLen = 0
+    @chainLen++ for key of chain
+    @hashTableLen = nextPrime Math.ceil @chainLen * nextFactor
+
 exports.splitSentence = (s) ->
   s = s.trim()
   if s[s.length - 1] in ['.', '!', '?']
@@ -99,3 +104,12 @@ exports.writeWordList = (v, offset, words) ->
   return
 
 log2Ceil = (n) -> Math.ceil Math.log(n) / Math.LN2
+
+nextPrime = (n) ->
+  n++ if n % 2 is 0
+  while true
+    for i in [2 .. n / 2]
+      if n % i is 0
+        n++
+        continue
+    return n

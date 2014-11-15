@@ -171,6 +171,19 @@ describe 'generate', ->
         header = new generate.Header
         header.setWordSize wordList1
         header.wordSize.should.equal 11
+      it 'should work with small chains', ->
+        header = new generate.Header
+        header.setChainLen exampleChain1
+        header.chainLen.should.equal 4
+        header.hashTableLen.should.equal 5
+      it 'should work with big chains', ->
+        chain = {}
+        for i in [1 .. 1234]
+          chain[i] = {'1': 1}
+        header = new generate.Header
+        header.setChainLen chain
+        header.chainLen.should.equal 1234
+        header.hashTableLen.should.equal 1523
 
 checkConversion = (vSize, start, size, n, vCorrect) ->
   v = new Uint8Array vSize
