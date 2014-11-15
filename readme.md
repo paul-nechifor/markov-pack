@@ -10,36 +10,63 @@ stored bigendian.
 The chain has the following structure:
 
 - `header` - Describes lengths and positions.
+
 - `pairOfLengths` - The lengths of the unique words.
+
 - `wordList` - A list of all the unique words.
-- `hashTable` - A table of `wordTuple` to `chainNext` offset.
-- `chainNext` - List of possible continuation words.
+
+- `hashTable` - A table of `wordTuple` to `chain` offset.
+
+- `chain` - List of possible continuation words.
 
 ### `header`
 
+Some number fields are included for reference purposes. They don't occupy any
+space in the binary but their method of calculation is specified. All the
+included lengths and sizes are on 4 bytes. All sizes refer to sizes in bits, not
+bytes.
+
 - `magicNumber` (7 bytes) - 0x13e3ff45be9c06 (computed by running `echo
   'markov-pack' | sha1sum | cut -c -14`)
+
 - `version` (1 byte) - For this first version it's 0x01.
-- `numberOfLengths` (4 bytes) - The number of unique word sizes.
-- `hashTableSize` (4 bytes) - The number of hashTable elements.
-- `nextsSize` (4 bytes) - The total size of the `chainNext` block (in bytes).
-- `wordSize` (4 bytes) - The size of words (in bits).
-- `wordTupleSize` (4 bytes) - The size of word tuples (in bits).
-- `offsetSize` (4 bytes) - The size of `chainNext` offsets (in bits).
-- `contListSize` (4 bytes) - The size `elementCount` (in bits).
-- `weightSize` (4 bytes) - The size `contWeight` (in bits).
+
+- `wordLengthsLen` - The number of unique word lengths.
+
+- `chainLen` - The number of elements in the chain.
+
+- `wordListLen` (not included) - The number of bytes in the `wordList` block.
+  Computed as the sum of `wordLength` * `wordCount` for all elements in
+  `pairOfLengths`.
+
+- `hashTableLen` - The number of elements in the hash table. This is >= to
+  `chainLen`.
+
+- `chainBytesLen` - The number of bytes in the `chain` block.
+
+- `wordSize` (not included) - This can be computed by counting the total number
+  of words in `pairOfLengths` and getting the number of bits required to store
+  that number.
+
+- `wordTupleSize` (not included) - Double the size of `wordSize`.
+
+- `offsetSize` (not included) - The number of bits required to store
+  `chainBytesLen` * 8.
+
+- `contListSize` - The size `pairCount`.
+
+- `weightSize` - The size `contWeight`.
 
 ### `pairOfLengths`
 
-Has a length of `numberOfLengths` * 2 * 4 bytes.
-
-A list of all the sizes of the words. Something like [[0, 1], [2, 4]], meaning
-that there is one word with length 0 and 4 words with length 2. So it's a list
-of `lengthPair` with `numberOfLengths` elements.
+A list of `lengthPair` with `wordLengthsLen` elements that represents the unique
+sizes of the words.
 
 ### `lengthPair`
 
-- `wordLength` (4 bytes) - The size of the word.
+- `wordLength` (4 bytes) - The size of the word as stored in `wordList` in
+  bytes.
+
 - `wordCount` (4 bytes) - How many such words are there.
 
 ### `wordList`
@@ -48,35 +75,33 @@ A concatenation of all the unique words (only ASCII is supported for now). The
 words appear ordered by their length and then sorted alphanumerically. Words of
 length 0 can exist (obviously only with count 1).
 
-The size of this list is the sum of `wordLength` * `wordCount` for all elements
-in `pairOfLengths`.
-
 ### `hashTable`
 
-Has a size in bits of (`wordTupleSize` + `offsetSize`) * `hashTableSize`.
+Has a size in bits of (`wordTupleSize` + `offsetSize`) * `hashTableLen`.
 
-This is a hash table structure of `wordTuple` to `chainNext` offset. Offsets are
-used instead of element number since `chainNext` contains lists which have
-variable lengths.
+This is a hash table structure of `wordTuple` to `chain` offset. Offsets are
+used instead of element number since `chain` contains lists which have variable
+lengths.
 
 Since this is a hash table, not all values are used. Unused values are zeroed
 out.
 
-### `chainNext`
+### `chain`
 
 This is a lists of possible continuation words with their weight: a list of
-`contList`. So this represents the values of the hash table.
+`contList`. So these are the values that the hash table points to.
 
 ### `contList`
 
-- `elementCount` (contListSize bits) - The number of pairs to follow.
-- `contListPairs` - The list of `contListPair`.
+- `pairCount` (`contListSize` bits) - The number of `pairs` that will follow.
 
-### `contListPair`
+- `pairs` - The list of `contListPair`.
 
-- `contWord` (`contWordSize` bits) - The index of the continuation chain
-  continuation word.
-- `contWeight` (`contWordSize` bits) - The weight of the word within this
+### `pairs`
+
+- `contWord` (`wordSize` bits) - The word in this continuation.
+
+- `contWeight` (`contWeightSize` bits) - The weight of the word within this
   possible continuation.
 
 ## License
