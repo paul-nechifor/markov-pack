@@ -1,5 +1,9 @@
 common = require './common'
 
+# This is the number of bits to waste on the chain block. This is necessary
+# since offset 0 is used in the hash table to indicate an unused position.
+OFFSET_WASTE = 8
+
 exports.Header = class Header extends common.Header
   setWordLengthsLen: (lengths) ->
     @wordLengthsLen = lengths.length
@@ -24,6 +28,15 @@ exports.Header = class Header extends common.Header
       maxNConts = nConts if nConts > maxNConts
     @contListSize = log2Ceil maxNConts
     @weightSize = log2Ceil maxWeight
+
+  setChainBytesLen: (chain) ->
+    offset = OFFSET_WASTE
+    for key, conts of chain
+      offset += @contListSize
+      nConts = 0
+      nConts++ for x of conts
+      offset += nConts * (@wordSize + @weightSize)
+    @chainBytesLen = Math.ceil offset / 8
 
   getFullSize: ->
     constructor.size # TODO Add the rest.
@@ -138,9 +151,7 @@ exports.getNumberTuple = getNumberTuple = (wordSize, tuple, map) ->
   (map[parts[0]] << wordSize) | map[parts[1]]
 
 exports.writeChain = (header, v, start, chain, map) ->
-  # Waste a byte so that offset 0 is never encountered. This is necessary since
-  # offset 0 is used in the hash table to indicate an unused position.
-  offset = 8
+  offset = OFFSET_WASTE
 
   # A map from number tuple to continuation offset.
   offsets = {}
@@ -165,9 +176,8 @@ exports.writeChain = (header, v, start, chain, map) ->
       writeBinary v, offset, header.weightSize, weight
       offset += header.weightSize
 
-  # Return the offsets map and total number of bytes that were used.
-  offsets: offsets
-  size: Math.ceil offset / 8
+  # Return the offsets map.
+  offsets
 
 exports.getHashTable = (offsets, length) ->
   v = []

@@ -176,6 +176,17 @@ describe 'generate', ->
           b: {b: 1000, cc: 1}
         h.contListSize.should.equal 3
         h.weightSize.should.equal 10
+    describe '#setChainBytesLen', ->
+      it 'should work with small chains', ->
+        chain =
+          a: {a: 1, b: 2, c: 3, d: 4, e: 5}
+          b: {b: 1000, cc: 1}
+          c: {a: 1}
+        h.setWordSize generate.getWords chain
+        h.setContListAndWeightSizes chain
+        h.setChainBytesLen chain
+        full = 8 + (3 * 3) + 8 * (3 + 10)
+        h.chainBytesLen.should.equal Math.ceil full / 8
     describe '#writeInBinary', ->
       it 'should write the header correctly', ->
         h.wordLengthsLen = 0x11111111
