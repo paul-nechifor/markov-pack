@@ -196,6 +196,32 @@ describe 'generate', ->
           b: {b: 1000, cc: 1}
         h.contListSize.should.equal 3
         h.weightSize.should.equal 10
+    describe '#writeInBinary', ->
+      it 'should write the header correctly', ->
+        h.wordLengthsLen = 0x11111111
+        h.chainLen = 0x22222222
+        h.wordListLen = 0x33333333
+        h.hashTableLen = 0x44444444
+        h.chainBytesLen = 0x55555555
+        h.wordSize = 0x66666666
+        h.wordToupleSize = 0x77777777
+        h.offsetSize = 0x88888888
+        h.contListSize = 0x99999999
+        h.weightSize = 0xaaaaaaaa
+        b = new Uint8Array 10 * 4
+        h.writeInBinary b
+        b.should.deep.equal new Uint8Array split32in8 [
+          h.magicNumber[0]
+          (h.magicNumber[1] << 8) | h.version
+          0x11111111
+          0x22222222
+          0x44444444
+          0x55555555
+          0x99999999
+          0xaaaaaaaa
+          0x00000000
+          0x00000000
+        ]
 
 checkConversion = (vSize, start, size, n, vCorrect) ->
   v = new Uint8Array vSize
@@ -207,3 +233,12 @@ checkConversion2 = (vSize, start1, size1, n1, start2, size2, n2, vCorrect) ->
   generate.writeBinary v, start1, size1, n1
   generate.writeBinary v, start2, size2, n2
   v.should.deep.equal new Uint8Array vCorrect
+
+split32in8 = (v) ->
+  ret = []
+  for n in v
+    ret.push n >> 24,
+        (n >> 16) & 0xff,
+        (n >> 8) & 0xff,
+        n & 0xff
+  ret

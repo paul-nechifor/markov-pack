@@ -25,6 +25,18 @@ exports.Header = class Header extends common.Header
     @contListSize = log2Ceil maxNConts
     @weightSize = log2Ceil maxWeight
 
+  writeInBinary: (v) ->
+    writeBinary32s v, 0, [
+      @magicNumber[0]
+      (@magicNumber[1] << 8) | @version
+      @wordLengthsLen
+      @chainLen
+      @hashTableLen
+      @chainBytesLen
+      @contListSize
+      @weightSize
+    ]
+
 exports.splitSentence = (s) ->
   s = s.trim()
   if s[s.length - 1] in ['.', '!', '?']
@@ -128,3 +140,8 @@ nextPrime = (n) ->
         n++
         continue
     return n
+
+writeBinary32s = (v, offset, list) ->
+  for x, i in list
+    writeBinary v, offset + i * 32, 32 , x
+  return
