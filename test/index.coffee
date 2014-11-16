@@ -1,4 +1,5 @@
 generate = require '../src/generate'
+decode = require '../src/decode'
 require('chai').should()
 
 createWordList = (n) ->
@@ -6,6 +7,17 @@ createWordList = (n) ->
   for i in [1 .. n]
     ret.push '' + i
   ret
+
+getASimpleBinary = ->
+  chain = {}
+  sen = [
+    'the dog in the car has a big nose'
+    'the car has a big door'
+    'the car has a big door'
+  ]
+  for s in sen
+    generate.addToChain chain, s.split ' '
+  binary = generate.generateBinary chain
 
 exampleChain1 =
   '\t': {a: 2}
@@ -225,6 +237,27 @@ describe 'generate', ->
           0x00000000
           0x00000000
         ]
+
+describe 'decode', ->
+  binary = getASimpleBinary()
+  describe '#Header', ->
+    describe '#decode', ->
+      header = new decode.Header
+      fn = -> header.decode binary
+      it 'should check for the correct header', ->
+        fn.should.not.throw Error, 'invalid-header'
+      it 'should fail for incorrect headers', ->
+        org = binary[0]
+        binary[0] = 0
+        fn.should.throw Error, 'invalid-header'
+        binary[0] = org
+      it 'should check for the supported version', ->
+        fn.should.not.throw Error, 'invalid-version'
+      it 'should fail for unsupported version', ->
+        org = binary[0]
+        binary[7] = 99
+        fn.should.throw Error, 'unsupported-version'
+        binary[7] = org
 
 checkConversion = (vSize, start, size, n, vCorrect) ->
   v = new Uint8Array vSize
