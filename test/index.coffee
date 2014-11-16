@@ -15,9 +15,9 @@ createWordList = (n) ->
 getASimpleChain = ->
   chain = {}
   sen = [
-    'the dog in the car has a big nose'
-    'the car has a big door'
-    'the car has a big door'
+    '  the dog in the car has a big nose '
+    '  the car has a big door '
+    '  the car has a big door '
   ]
   for s in sen
     generate.addToChain chain, s.split ' '

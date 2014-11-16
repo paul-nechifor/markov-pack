@@ -49,8 +49,10 @@ exports.Decoder = class Decoder
       remaining -= lens[k][1]
       k++
     start += lens[k][0] * remaining
+    length = lens[k][0]
+    return '' if length is 0
     str = ''
-    for i in [start .. start + lens[k][0] - 1]
+    for i in [start .. start + length - 1]
       str += String.fromCharCode @binary[@wordsOffset + i]
     str
 
