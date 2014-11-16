@@ -6,12 +6,13 @@ module.exports = main = ->
   argv = optimist
   .usage 'Usage: $0 [options]'
 
+  .default 'i', '-'
   .alias 'i', 'in'
-  .describe 'i', 'The input file (1 sentence per line).'
+  .describe 'i', 'The input file (1 sentence per line). Use "-" for stdin.'
 
-  .default 'o', 'out.makpak'
+  .default 'o', '-'
   .alias 'o', 'out'
-  .describe 'o', 'The path to the output file.'
+  .describe 'o', 'The path to the output file. Use "-" for stdout.'
 
   .alias 'h', 'help'
   .describe 'h', 'Print this help message.'
@@ -24,7 +25,7 @@ module.exports = main = ->
     throw err if err
 
 generateChain = (inFile, outFile, cb) ->
-  fs.readFile inFile, {encoding: 'utf8'}, (err, data) ->
+  readFile inFile, (err, data) ->
     return cb err if err
     lines = data.split '\n'
     chain = {}
@@ -32,4 +33,18 @@ generateChain = (inFile, outFile, cb) ->
       generate.addToChain chain, generate.splitSentence line
     encoder = new generate.Encoder chain
     binary = encoder.encode()
-    fs.writeFile outFile, new Buffer(binary), {encoding: 'binary'}, cb
+    writeBinary outFile, new Buffer(binary), cb
+
+readFile = (name, cb) ->
+  if name isnt '-'
+    return fs.readFile name, {encoding: 'utf8'}, cb
+  chunks = []
+  process.stdin.on 'data', (chunk) -> chunks.push chunk
+  # TODO: Deal with the error.
+  process.stdin.on 'end', -> cb null, chunks.join ''
+
+writeBinary = (name, buffer, cb) ->
+  if name isnt '-'
+    return fs.writeFile name, buffer, {encoding: 'binary'}, cb
+  process.stdout.write buffer
+  cb()
