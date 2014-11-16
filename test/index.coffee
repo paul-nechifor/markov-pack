@@ -299,10 +299,22 @@ describe 'decode', ->
       it 'should check for the supported version', ->
         fn.should.not.throw Error, 'invalid-version'
       it 'should fail for unsupported version', ->
-        org = binary[0]
+        org = binary[7]
         binary[7] = 99
         fn.should.throw Error, 'unsupported-version'
         binary[7] = org
+      values = [
+        'wordLengthsLen'
+        'chainLen'
+        'hashTableLen'
+        'chainBytesLen'
+        'contListSize'
+        'weightSize'
+      ]
+      for value in values
+        do (value) ->
+          it "should read #{value} correctly", ->
+            header[value].should.equal encoder.header[value]
 
   describe '#readBytes', ->
     for i in [0 .. readWriteData.length - 1] by 2

@@ -2,11 +2,20 @@ common = require './common'
 
 exports.Header = class Header extends common.Header
   decode: (v) ->
+    # Check header and version
     if @magicNumber[0] isnt read(v, 0, 32) or
         @magicNumber[1] isnt read(v, 32, 24)
       throw Error 'invalid-header'
     if v[7] isnt @version
       throw Error 'unsupported-version'
+
+    # Read included header values.
+    @wordLengthsLen = read v, 2 * 32, 32
+    @chainLen =       read v, 3 * 32, 32
+    @hashTableLen =   read v, 4 * 32, 32
+    @chainBytesLen =  read v, 5 * 32, 32
+    @contListSize =   read v, 6 * 32, 32
+    @weightSize =     read v, 7 * 32, 32
     return
 
 exports.Decoder = class Decoder
