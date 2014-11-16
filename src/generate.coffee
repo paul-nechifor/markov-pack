@@ -19,11 +19,6 @@ exports.Header = class Header extends common.Header
     @chainLen++ for key of chain
     @hashTableLen = nextPrime Math.ceil @chainLen * nextFactor
 
-  setWordListLen: (lengths) ->
-    @wordListLen = 0
-    for [wl, count] in lengths
-      @wordListLen += wl * count
-
   setContListAndWeightSizes: (chain) ->
     maxNConts = -1
     maxWeight = -1
@@ -47,7 +42,6 @@ exports.Header = class Header extends common.Header
     @offsetSize = log2Ceil offset
 
   setOffsets: (lengths) ->
-    @lengthsOffset = 8 * @constructor.size
     @wordListOffset = @lengthsOffset + 8 * 4 * 2 * lengths.length
     @hashTableOffset = @wordListOffset + 8 * @wordListLen
     hashTableBits = @hashTableLen * (@wordTupleSize + @offsetSize)

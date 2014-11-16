@@ -17,10 +17,16 @@ exports.Header = class Header
     @contListSize = -1
     @weightSize = -1
 
-    @lengthsOffset = -1
+    @lengthsOffset = 8 * @constructor.size
     @wordListOffset = -1
     @hashTableOffset = -1
     @chainOffset = -1
     @totalByteSize = -1
 
   @size = 4 * (2 + 6)
+
+  setWordListLen: (lengths) ->
+    @wordListLen = 0
+    for [wl, count] in lengths
+      @wordListLen += wl * count
+    return
