@@ -259,10 +259,19 @@ describe 'decode', ->
         fn.should.throw Error, 'unsupported-version'
         binary[7] = org
 
+  describe '#readBytes', ->
+    it 'should work with aligned full bytes', ->
+      checkDeconversion 4, 0, 24, 0x010203, [0x01, 0x02, 0x03, 0x00]
+
 checkConversion = (vSize, start, size, n, vCorrect) ->
   v = new Uint8Array vSize
   generate.writeBinary v, start, size, n
   v.should.deep.equal new Uint8Array vCorrect
+
+checkDeconversion = (vSize, start, size, n, vCorrect) ->
+  v = new Uint8Array vCorrect
+  decode.readBinary v, start, size
+  .should.deep.equal n
 
 checkConversion2 = (vSize, start1, size1, n1, start2, size2, n2, vCorrect) ->
   v = new Uint8Array vSize

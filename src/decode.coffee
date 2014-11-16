@@ -16,3 +16,25 @@ exports.Decoder = class Decoder
 
   init: ->
     @header.decode @binary
+
+exports.readBinary = readBinary = (v, start, size) ->
+  mask = 0xff
+  startByte = start // 8
+  byteOffset = start % 8
+  inFirstByte = 8 - byteOffset
+  remaining = size - inFirstByte
+
+  # Read the bits of the first byte after the bit offset.
+  n = v[startByte] & (mask >> byteOffset)
+
+  # If there are no more bits to read, ignore the unused bits.
+  if remaining <= 0
+    return n >> -remaining
+
+  # Read full bytes entirely.
+  while remaining >= 8
+    remaining -= 8
+    n = (n << 8) | v[++startByte]
+
+  # Read the last bits of the last byte.
+  (n << remaining) | (v[++startByte] >> (8 - remaining))
