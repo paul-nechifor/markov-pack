@@ -2,6 +2,10 @@ generate = require '../src/generate'
 decode = require '../src/decode'
 require('chai').should()
 
+###
+  Helper functions
+###
+
 createWordList = (n) ->
   ret = []
   for i in [1 .. n]
@@ -19,6 +23,35 @@ getASimpleBinary = ->
     generate.addToChain chain, s.split ' '
   binary = generate.generateBinary chain
 
+checkConversion = (vSize, start, size, n, vCorrect) ->
+  v = new Uint8Array vSize
+  generate.writeBinary v, start, size, n
+  v.should.deep.equal new Uint8Array vCorrect
+
+checkDeconversion = (vSize, start, size, n, vCorrect) ->
+  v = new Uint8Array vCorrect
+  decode.readBinary v, start, size
+  .should.deep.equal n
+
+checkConversion2 = (vSize, start1, size1, n1, start2, size2, n2, vCorrect) ->
+  v = new Uint8Array vSize
+  generate.writeBinary v, start1, size1, n1
+  generate.writeBinary v, start2, size2, n2
+  v.should.deep.equal new Uint8Array vCorrect
+
+split32in8 = (v) ->
+  ret = []
+  for n in v
+    ret.push n >> 24,
+        (n >> 16) & 0xff,
+        (n >> 8) & 0xff,
+        n & 0xff
+  ret
+
+###
+  Reused values
+###
+
 exampleChain1 =
   '\t': {a: 2}
   '\ta': {cc: 2, a: 1}
@@ -27,6 +60,10 @@ exampleChain1 =
 
 wordList1 = createWordList 1200
 wordList2 = ['', 'a', 'bb', 'cc', 'dddd']
+
+###
+  Tests
+###
 
 describe 'generate', ->
   describe '#splitSentence', ->
@@ -262,28 +299,3 @@ describe 'decode', ->
   describe '#readBytes', ->
     it 'should work with aligned full bytes', ->
       checkDeconversion 4, 0, 24, 0x010203, [0x01, 0x02, 0x03, 0x00]
-
-checkConversion = (vSize, start, size, n, vCorrect) ->
-  v = new Uint8Array vSize
-  generate.writeBinary v, start, size, n
-  v.should.deep.equal new Uint8Array vCorrect
-
-checkDeconversion = (vSize, start, size, n, vCorrect) ->
-  v = new Uint8Array vCorrect
-  decode.readBinary v, start, size
-  .should.deep.equal n
-
-checkConversion2 = (vSize, start1, size1, n1, start2, size2, n2, vCorrect) ->
-  v = new Uint8Array vSize
-  generate.writeBinary v, start1, size1, n1
-  generate.writeBinary v, start2, size2, n2
-  v.should.deep.equal new Uint8Array vCorrect
-
-split32in8 = (v) ->
-  ret = []
-  for n in v
-    ret.push n >> 24,
-        (n >> 16) & 0xff,
-        (n >> 8) & 0xff,
-        n & 0xff
-  ret
