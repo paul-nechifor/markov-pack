@@ -61,6 +61,41 @@ exampleChain1 =
 wordList1 = createWordList 1200
 wordList2 = ['', 'a', 'bb', 'cc', 'dddd']
 
+readWriteData = [
+  'should work with aligned full bytes'
+  [4, 0, 24, 0x010203, [0x01, 0x02, 0x03, 0x00]]
+  'should work with single bytes'
+  [1, 0, 8, 153, [153]]
+  'should work with incomplete first byte'
+  [1, 0, 4, 0xf, [0xf0]]
+  'should work with incomplete offset first byte'
+  [1, 2, 4, 0xf, [0x3c]]
+  'should work with incomplete last byte'
+  [2, 0, 12, 0xfff, [0xff, 0xf0]]
+  'should work with a byte across alignment'
+  [2, 4, 8, 0xff, [0x0f, 0xf0]]
+  'should work with aligned offsets'
+  [4, 8, 16, 0xffff, [0x00, 0xff, 0xff, 0x00]]
+  'should work with non aligned offsets'
+  [3, 4, 16, 0xffff, [0x0f, 0xff, 0xf0]]
+  'should work with 1 bit'
+  [1, 4, 1, 1, [0x08]]
+  'should work with 1 bit in first byte'
+  [3, 7, 9, 0x1ff, [0x01, 0xff, 0x00]]
+  'should work with 1 bit in last byte'
+  [3, 8, 9, 0x1ff, [0x00, 0xff, 0x80]]
+  'should work with 1 bit in the first and last byte'
+  [3, 7, 10, 0x3ff, [0x01, 0xff, 0x80]]
+  'should be able to work with 32 bits without an offset'
+  [4, 0, 32, 0x12345678, [0x12, 0x34, 0x56, 0x78]]
+  'should be able to work with 32 bits with an aligned offset'
+  [5, 8, 32, 0x12345678, [0x00, 0x12, 0x34, 0x56, 0x78]]
+  'should be able to work with 32 bits with a non aligned offset'
+  [5, 4, 32, 0x12345678, [0x01, 0x23, 0x45, 0x67, 0x80]]
+  'should be able to work with 32 bits with a long offset'
+  [10, 40, 32, 0x12345678, [0, 0, 0, 0, 0, 0x12, 0x34, 0x56, 0x78, 0]]
+]
+
 ###
   Tests
 ###
@@ -154,39 +189,10 @@ describe 'generate', ->
         ddddd: 5
 
   describe '#writeBinary', ->
-    it 'should work with aligned full bytes', ->
-      checkConversion 4, 0, 24, 0x010203, [0x01, 0x02, 0x03, 0x00]
-    it 'should work with single bytes', ->
-      checkConversion 1, 0, 8, 153, [153]
-    it 'should work with incomplete first byte', ->
-      checkConversion 1, 0, 4, 0xf, [0xf0]
-    it 'should work with incomplete offset first byte', ->
-      checkConversion 1, 2, 4, 0xf, [0x3c]
-    it 'should work with incomplete last byte', ->
-      checkConversion 2, 0, 12, 0xfff, [0xff, 0xf0]
-    it 'should write a byte across alignment', ->
-      checkConversion 2, 4, 8, 0xff, [0x0f, 0xf0]
-    it 'should work with aligned offsets', ->
-      checkConversion 4, 8, 16, 0xffff, [0x00, 0xff, 0xff, 0x00]
-    it 'should work with non aligned offsets', ->
-      checkConversion 3, 4, 16, 0xffff, [0x0f, 0xff, 0xf0]
-    it 'should work with 1 bit', ->
-      checkConversion 1, 4, 1, 1, [0x08]
-    it 'should work with 1 bit in first byte', ->
-      checkConversion 3, 7, 9, 0x1ff, [0x01, 0xff, 0x00]
-    it 'should work with 1 bit in last byte', ->
-      checkConversion 3, 8, 9, 0x1ff, [0x00, 0xff, 0x80]
-    it 'should work with 1 bit in the first and last byte', ->
-      checkConversion 3, 7, 10, 0x3ff, [0x01, 0xff, 0x80]
-    it 'should be able to write 32 bits without an offset', ->
-      checkConversion 4, 0, 32, 0x12345678, [0x12, 0x34, 0x56, 0x78]
-    it 'should be able to write 32 bits with an aligned offset', ->
-      checkConversion 5, 8, 32, 0x12345678, [0x00, 0x12, 0x34, 0x56, 0x78]
-    it 'should be able to write 32 bits with a non aligned offset', ->
-      checkConversion 5, 4, 32, 0x12345678, [0x01, 0x23, 0x45, 0x67, 0x80]
-    it 'should be able to write 32 bits with a long offset', ->
-      checkConversion 10, 40, 32, 0x12345678,
-          [0, 0, 0, 0, 0, 0x12, 0x34, 0x56, 0x78, 0]
+    for i in [0 .. readWriteData.length - 1] by 2
+      do (i) ->
+        it readWriteData[i], ->
+          checkConversion.apply null, readWriteData[i + 1]
     it 'should work with two writes', ->
       checkConversion2 3, 0, 8, 0xff, 16, 8, 0xff, [0xff, 0x00, 0xff]
     it 'should work with two same byte writes', ->
@@ -297,5 +303,7 @@ describe 'decode', ->
         binary[7] = org
 
   describe '#readBytes', ->
-    it 'should work with aligned full bytes', ->
-      checkDeconversion 4, 0, 24, 0x010203, [0x01, 0x02, 0x03, 0x00]
+    for i in [0 .. readWriteData.length - 1] by 2
+      do (i) ->
+        it readWriteData[i], ->
+          checkDeconversion.apply null, readWriteData[i + 1]
