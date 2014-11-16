@@ -318,9 +318,10 @@ describe 'decode', ->
             header[value].should.equal encoder.header[value]
 
   describe '#Decoder', ->
+    decoder = new decode.Decoder binary
+    decoder.decode()
+
     describe '#decode', ->
-      decoder = new decode.Decoder binary
-      decoder.decode()
       it 'should read the correct lengths', ->
         decoder.lengths.should.deep.equal encoder.lengths
       values = [
@@ -337,6 +338,13 @@ describe 'decode', ->
         do (value) ->
           it "should set header.#{value} correctly", ->
             decoder.header[value].should.equal encoder.header[value]
+
+    describe '#getWord', ->
+      it 'should be able to get all the words', ->
+        words = []
+        for i in [0 .. encoder.words.length - 1]
+          words.push decoder.getWord i
+        words.should.deep.equal encoder.words
 
   describe '#readBytes', ->
     for i in [0 .. readWriteData.length - 1] by 2

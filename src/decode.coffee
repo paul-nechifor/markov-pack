@@ -37,6 +37,22 @@ exports.Decoder = class Decoder
     @header.decode @binary
     @lengths = getLengths @binary, @header.lengthsOffset, @header.wordLengthsLen
     @header.compute @lengths
+    @wordsOffset = @header.wordListOffset / 8
+
+  getWord: (index) ->
+    lens = @lengths
+    k = 0
+    remaining = index
+    start = 0
+    while remaining - lens[k][1] >= 0
+      start += lens[k][0] * lens[k][1]
+      remaining -= lens[k][1]
+      k++
+    start += lens[k][0] * remaining
+    str = ''
+    for i in [start .. start + lens[k][0] - 1]
+      str += String.fromCharCode @binary[@wordsOffset + i]
+    str
 
 exports.readBinary = read = (v, start, size) ->
   mask = 0xff
