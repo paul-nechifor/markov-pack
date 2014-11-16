@@ -50,9 +50,21 @@ describe 'generate', ->
       fn.should.throw Error, 'tab-not-allowed'
 
   describe '#getWords', ->
+    next = {}
+    # Start from 3 since 'next' and '' are also words.
+    for i in [3 .. generate.MAX_WORDS]
+      next['' + i] = 1
+    fullChain = next: next
     it 'should include empty words', ->
       generate.getWords exampleChain1
       .should.deep.equal '-a-b-c-cc-ddddd'.split '-'
+    it 'should allow as many words as fit on 16 bits', ->
+      fn = -> generate.getWords fullChain
+      fn.should.not.throw Error, 'too-many-words'
+    it 'should not allow more words than fit on 16 bits', ->
+      fullChain.next['overflow'] = 1
+      fn = -> generate.getWords fullChain
+      fn.should.throw Error, 'too-many-words'
 
   describe '#getLengths', ->
     it 'should include empty words', ->

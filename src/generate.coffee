@@ -4,6 +4,8 @@ common = require './common'
 # since offset 0 is used in the hash table to indicate an unused position.
 OFFSET_WASTE = 8
 
+exports.MAX_WORDS = MAX_WORDS = 0xffff
+
 exports.Header = class Header extends common.Header
   setWordLengthsLen: (lengths) ->
     @wordLengthsLen = lengths.length
@@ -93,12 +95,18 @@ exports.addToChain = (chain, seq) ->
 
 exports.getWords = getWords = (chain) ->
   words = {}
+  nWords = 0
+  addWord = (w) ->
+    if not words[w]
+      words[w] = true
+      if ++nWords > MAX_WORDS
+        throw Error 'too-many-words'
+    return
   for key, pos of chain
     w2 = key.split '\t'
-    words[w2[0]] = true
-    words[w2[1]] = true
-    for w of pos
-      words[w] = true
+    addWord w2[0]
+    addWord w2[1]
+    addWord w for w of pos
   Object.keys(words).sort (a, b) ->
     if a.length > b.length then 1
     else if a.length < b.length then -1
