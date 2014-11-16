@@ -30,3 +30,14 @@ exports.Header = class Header
     for [wl, count] in lengths
       @wordListLen += wl * count
     return
+
+  setOffsets: ->
+    @wordListOffset = @lengthsOffset + 8 * 4 * 2 * @wordLengthsLen
+    @hashTableOffset = @wordListOffset + 8 * @wordListLen
+    hashTableBits = @hashTableLen * (@wordTupleSize + @offsetSize)
+    hashTableBits = Math.ceil (hashTableBits // 8) * 8
+    @chainOffset = @hashTableOffset + hashTableBits
+    @totalByteSize = @chainOffset / 8 + @chainBytesLen
+
+exports.log2Ceil = log2Ceil = (n) ->
+  Math.ceil Math.log(n) / Math.LN2

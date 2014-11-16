@@ -1,4 +1,5 @@
 common = require './common'
+log2Ceil = common.log2Ceil
 
 exports.Header = class Header extends common.Header
   decode: (v) ->
@@ -17,6 +18,17 @@ exports.Header = class Header extends common.Header
     @contListSize =   read v, 6 * 32, 32
     @weightSize =     read v, 7 * 32, 32
 
+  compute: (lengths) ->
+    # Compute some of the not included values.
+    @setWordListLen lengths
+    nWords = 0
+    nWords += l[1] for l in lengths
+    @wordSize = log2Ceil nWords
+    @wordTupleSize = @wordSize * 2
+    @offsetSize = log2Ceil @chainBytesLen * 8
+
+    @setOffsets()
+
 exports.Decoder = class Decoder
   constructor: (@binary) ->
     @header = new Header
@@ -24,6 +36,7 @@ exports.Decoder = class Decoder
   decode: ->
     @header.decode @binary
     @lengths = getLengths @binary, @header.lengthsOffset, @header.wordLengthsLen
+    @header.compute @lengths
 
 exports.readBinary = read = (v, start, size) ->
   mask = 0xff

@@ -1,4 +1,5 @@
 common = require './common'
+log2Ceil = common.log2Ceil
 
 # This is the number of bits to waste on the chain block. This is necessary
 # since offset 0 is used in the hash table to indicate an unused position.
@@ -41,14 +42,6 @@ exports.Header = class Header extends common.Header
     @chainBytesLen = Math.ceil offset / 8
     @offsetSize = log2Ceil offset
 
-  setOffsets: (lengths) ->
-    @wordListOffset = @lengthsOffset + 8 * 4 * 2 * lengths.length
-    @hashTableOffset = @wordListOffset + 8 * @wordListLen
-    hashTableBits = @hashTableLen * (@wordTupleSize + @offsetSize)
-    hashTableBits = Math.ceil (hashTableBits // 8) * 8
-    @chainOffset = @hashTableOffset + hashTableBits
-    @totalByteSize = Math.ceil (@chainOffset + 8 * @chainBytesLen) / 8
-
   setAll: (chain, words, lengths, map) ->
     @setWordLengthsLen lengths
     @setWordSize words
@@ -56,7 +49,7 @@ exports.Header = class Header extends common.Header
     @setWordListLen lengths
     @setContListAndWeightSizes chain
     @setChainBytesLen chain
-    @setOffsets lengths
+    @setOffsets()
 
   writeInBinary: (v) ->
     writeBinary32s v, 0, [
@@ -244,8 +237,6 @@ exports.writeHashTable = writeHashTable = (header, v, table) ->
     writeBinary v, offset, header.wordTupleSize, e[0]
     writeBinary v, offset + header.wordTupleSize, header.offsetSize, e[1]
   return
-
-log2Ceil = (n) -> Math.ceil Math.log(n) / Math.LN2
 
 nextPrime = (n) ->
   n++ if n % 2 is 0

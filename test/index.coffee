@@ -311,6 +311,7 @@ describe 'decode', ->
         'contListSize'
         'weightSize'
       ]
+
       for value in values
         do (value) ->
           it "should read #{value} correctly", ->
@@ -322,6 +323,20 @@ describe 'decode', ->
       decoder.decode()
       it 'should read the correct lengths', ->
         decoder.lengths.should.deep.equal encoder.lengths
+      values = [
+        'wordListLen'
+        'wordSize'
+        'wordTupleSize'
+        'offsetSize'
+        'wordListOffset'
+        'hashTableOffset'
+        'chainOffset'
+        'totalByteSize'
+      ]
+      for value in values
+        do (value) ->
+          it "should set header.#{value} correctly", ->
+            decoder.header[value].should.equal encoder.header[value]
 
   describe '#readBytes', ->
     for i in [0 .. readWriteData.length - 1] by 2
