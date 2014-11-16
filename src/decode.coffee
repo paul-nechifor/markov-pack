@@ -16,14 +16,14 @@ exports.Header = class Header extends common.Header
     @chainBytesLen =  read v, 5 * 32, 32
     @contListSize =   read v, 6 * 32, 32
     @weightSize =     read v, 7 * 32, 32
-    return
 
 exports.Decoder = class Decoder
   constructor: (@binary) ->
     @header = new Header
 
-  init: ->
+  decode: ->
     @header.decode @binary
+    @lengths = getLengths @binary, @header.lengthsOffset, @header.wordLengthsLen
 
 exports.readBinary = read = (v, start, size) ->
   mask = 0xff
@@ -46,3 +46,12 @@ exports.readBinary = read = (v, start, size) ->
 
   # Read the last bits of the last byte.
   (n << remaining) | (v[++startByte] >> (8 - remaining))
+
+getLengths = (v, offset, len) ->
+  ret = []
+  for i in [0 .. len - 1]
+    ret.push [
+      read v, offset + 64 * i, 32
+      read v, offset + 64 * i + 32, 32
+    ]
+  ret

@@ -316,6 +316,13 @@ describe 'decode', ->
           it "should read #{value} correctly", ->
             header[value].should.equal encoder.header[value]
 
+  describe '#Decoder', ->
+    describe '#decode', ->
+      decoder = new decode.Decoder binary
+      decoder.decode()
+      it 'should read the correct lengths', ->
+        decoder.lengths.should.deep.equal encoder.lengths
+
   describe '#readBytes', ->
     for i in [0 .. readWriteData.length - 1] by 2
       do (i) ->
