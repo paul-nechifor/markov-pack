@@ -12,7 +12,7 @@ createWordList = (n) ->
     ret.push '' + i
   ret
 
-getASimpleBinary = ->
+getASimpleChain = ->
   chain = {}
   sen = [
     'the dog in the car has a big nose'
@@ -21,7 +21,7 @@ getASimpleBinary = ->
   ]
   for s in sen
     generate.addToChain chain, s.split ' '
-  binary = generate.generateBinary chain
+  chain
 
 checkConversion = (vSize, start, size, n, vCorrect) ->
   v = new Uint8Array vSize
@@ -282,7 +282,9 @@ describe 'generate', ->
         ]
 
 describe 'decode', ->
-  binary = getASimpleBinary()
+  chain = getASimpleChain()
+  encoder = new generate.Encoder chain
+  binary = encoder.encode()
   describe '#Header', ->
     describe '#decode', ->
       header = new decode.Header

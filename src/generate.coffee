@@ -55,6 +55,15 @@ exports.Header = class Header extends common.Header
     @chainOffset = @hashTableOffset + hashTableBits
     @totalByteSize = Math.ceil (@chainOffset + 8 * @chainBytesLen) / 8
 
+  setAll: (chain, words, lengths, map) ->
+    @setWordLengthsLen lengths
+    @setWordSize words
+    @setChainLen chain
+    @setWordListLen lengths
+    @setContListAndWeightSizes chain
+    @setChainBytesLen chain
+    @setOffsets lengths
+
   writeInBinary: (v) ->
     writeBinary32s v, 0, [
       @magicNumber[0]
@@ -66,6 +75,25 @@ exports.Header = class Header extends common.Header
       @contListSize
       @weightSize
     ]
+
+exports.Encoder = class Encoder
+  constructor: (@chain) ->
+    @header = new Header
+
+  encode: ->
+    @words = getWords @chain
+    @lengths = getLengths @words
+    @map = getWordToNumberMap @words
+    @header.setAll @chain, @words, @lengths, @map
+
+    @binary = new Uint8Array @header.totalByteSize
+    @header.writeInBinary @binary
+    writePairOfLengths @binary, @header.lengthsOffset, @lengths
+    writeWordList @binary, @header.wordListOffset, @words
+    @offsets = writeChain @header, @binary, @chain, @map
+    @table = getHashTable @offsets, @header.hashTableLen
+    writeHashTable @header, @binary, @table
+    @binary
 
 exports.splitSentence = (s) ->
   s = s.trim()
@@ -222,29 +250,6 @@ exports.writeHashTable = writeHashTable = (header, v, table) ->
     writeBinary v, offset, header.wordTupleSize, e[0]
     writeBinary v, offset + header.wordTupleSize, header.offsetSize, e[1]
   return
-
-exports.generateBinary = (chain) ->
-  words = getWords chain
-  lengths = getLengths words
-  map = getWordToNumberMap words
-
-  header = new Header
-  header.setWordLengthsLen lengths
-  header.setWordSize words
-  header.setChainLen chain
-  header.setWordListLen lengths
-  header.setContListAndWeightSizes chain
-  header.setChainBytesLen chain
-  header.setOffsets lengths
-
-  binary = new Uint8Array header.totalByteSize
-  header.writeInBinary binary
-  writePairOfLengths binary, header.lengthsOffset, lengths
-  writeWordList binary, header.wordListOffset, words
-  offsets = writeChain header, binary, chain, map
-  table = getHashTable offsets, header.hashTableLen
-  writeHashTable header, binary, table
-  binary
 
 log2Ceil = (n) -> Math.ceil Math.log(n) / Math.LN2
 

@@ -30,5 +30,6 @@ generateChain = (inFile, outFile, cb) ->
     chain = {}
     for line in lines
       generate.addToChain chain, generate.splitSentence line
-    binary = generate.generateBinary chain
+    encoder = new generate.Encoder chain
+    binary = encoder.encode()
     fs.writeFile outFile, new Buffer(binary), {encoding: 'binary'}, cb
