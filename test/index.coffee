@@ -354,6 +354,22 @@ describe 'decode', ->
           offsets[tuple] = decoder.getContOffset tuple
         offsets.should.deep.equal correctOffsets
 
+    describe '#sumWeights', ->
+      it 'should sum weights correctly', ->
+        correctSum = 0
+        for word, weight of chain['\t']
+          correctSum += weight
+        decoder.sumWeights 1
+        .should.equal correctSum
+      it 'should sum weights correctly 2', ->
+        for wTuple, conts of chain
+          sum = 0
+          sum += weight for word, weight of conts
+          nTuple = generate.getNumberTuple encoder.header.wordSize, wTuple,
+              encoder.map
+          s = decoder.sumWeights nTuple
+          s.should.equal sum
+
   describe '#readBytes', ->
     for i in [0 .. readWriteData.length - 1] by 2
       do (i) ->

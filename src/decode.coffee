@@ -70,6 +70,17 @@ exports.Decoder = class Decoder
       if ++totalLooped >= @header.hashTableLen
         throw new Error 'no-such-key'
 
+  sumWeights: (tuple) ->
+    start = @header.chainOffset + @getContOffset(tuple)
+    nConts = read @binary, start, @header.contListSize
+    sum = 0
+    elemSize = @header.wordSize + @header.weightSize
+    start += @header.wordSize
+    for i in [0 .. nConts - 1]
+      s = read @binary, start + i * elemSize, @header.weightSize
+      sum += s
+    sum
+
 exports.readBinary = read = (v, start, size) ->
   mask = 0xff
   startByte = start // 8
