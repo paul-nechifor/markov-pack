@@ -1,6 +1,6 @@
 fs = require 'fs'
 optimist = require 'optimist'
-generate = require './generate'
+encode = require './encode'
 
 module.exports = main = ->
   argv = optimist
@@ -33,27 +33,27 @@ module.exports = main = ->
       throw err if err
     return
 
-  generateChain argv.in, argv.out, (err) ->
+  makeBinaryChain argv.in, argv.out, (err) ->
     throw err if err
 
 trim = (inFile, outFile, maxWords, cb)->
   readLines inFile, (err, lines) ->
     return cb err if err
     sentences = []
-    sentences.push generate.splitSentence line for line in lines
+    sentences.push encode.splitSentence line for line in lines
     popular = getMostPopularWords sentences, maxWords
     ordered = getOrdered sentences, popular
     top = getTop sentences, ordered, maxWords
     writeTop outFile, lines, top, cb
 
-generateChain = (inFile, outFile, cb) ->
+makeBinaryChain = (inFile, outFile, cb) ->
   readFile inFile, (err, data) ->
     return cb err if err
     lines = data.split '\n'
     chain = {}
     for line in lines
-      generate.addToChain chain, generate.splitSentence line
-    encoder = new generate.Encoder chain
+      encode.addToChain chain, encode.splitSentence line
+    encoder = new encode.Encoder chain
     binary = encoder.encode()
     writeBinary outFile, new Buffer(binary), cb
 

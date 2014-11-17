@@ -1,4 +1,4 @@
-generate = require '../src/generate'
+encode = require '../src/encode'
 decode = require '../src/decode'
 require('chai').should()
 
@@ -20,12 +20,12 @@ getASimpleChain = ->
     '  the car has a big door '
   ]
   for s in sen
-    generate.addToChain chain, s.split ' '
+    encode.addToChain chain, s.split ' '
   chain
 
 checkConversion = (vSize, start, size, n, vCorrect) ->
   v = new Uint8Array vSize
-  generate.writeBinary v, start, size, n
+  encode.writeBinary v, start, size, n
   v.should.deep.equal new Uint8Array vCorrect
 
 checkDeconversion = (vSize, start, size, n, vCorrect) ->
@@ -35,8 +35,8 @@ checkDeconversion = (vSize, start, size, n, vCorrect) ->
 
 checkConversion2 = (vSize, start1, size1, n1, start2, size2, n2, vCorrect) ->
   v = new Uint8Array vSize
-  generate.writeBinary v, start1, size1, n1
-  generate.writeBinary v, start2, size2, n2
+  encode.writeBinary v, start1, size1, n1
+  encode.writeBinary v, start2, size2, n2
   v.should.deep.equal new Uint8Array vCorrect
 
 split32in8 = (v) ->
@@ -100,22 +100,22 @@ readWriteData = [
   Tests
 ###
 
-describe 'generate', ->
+describe 'encode', ->
   describe '#splitSentence', ->
     it 'should ignore multiple spaces', ->
       s = 'The  road goes ever \non and on.'
       c = '--The-road-goes-ever-on-and-on-.-'.split '-'
-      generate.splitSentence(s).should.deep.equal c
+      encode.splitSentence(s).should.deep.equal c
     it 'should ignore end spaces', ->
       s = ' The  road goes ever \non and on \n.\t '
       c = '--The-road-goes-ever-on-and-on-.-'.split '-'
-      generate.splitSentence(s).should.deep.equal c
+      encode.splitSentence(s).should.deep.equal c
 
   describe '#addToChain', ->
     it 'should assign correct usage numbers', ->
       seq = 'a b c b c c b c'.split ' '
       chain = {}
-      generate.addToChain chain, seq
+      encode.addToChain chain, seq
       chain.should.deep.equal
         'a\tb': {c: 1}
         'b\tc': {b: 1, c: 1}
@@ -123,63 +123,63 @@ describe 'generate', ->
         'c\tc': {b: 1}
     it 'should ignore lists with too few elements', ->
       chain = {}
-      generate.addToChain chain, ['a', 'b']
+      encode.addToChain chain, ['a', 'b']
       chain.should.deep.equal {}
-      generate.addToChain chain, []
+      encode.addToChain chain, []
       chain.should.deep.equal {}
     it 'should not allow the tab char in words', ->
-      fn = -> generate.addToChain {}, ['a', 'b', 'aa\t']
+      fn = -> encode.addToChain {}, ['a', 'b', 'aa\t']
       fn.should.throw Error, 'tab-not-allowed'
-      fn = -> generate.addToChain {}, ['a', '\tb', 'cc', 'ddd']
+      fn = -> encode.addToChain {}, ['a', '\tb', 'cc', 'ddd']
       fn.should.throw Error, 'tab-not-allowed'
 
   describe '#getWords', ->
     next = {}
     # Start from 3 since 'next' and '' are also words.
-    for i in [3 .. generate.MAX_WORDS]
+    for i in [3 .. encode.MAX_WORDS]
       next['' + i] = 1
     fullChain = next: next
     it 'should include empty words', ->
-      generate.getWords exampleChain1
+      encode.getWords exampleChain1
       .should.deep.equal '-a-b-c-cc-ddddd'.split '-'
     it 'should allow as many words as fit on 16 bits', ->
-      fn = -> generate.getWords fullChain
+      fn = -> encode.getWords fullChain
       fn.should.not.throw Error, 'too-many-words'
     it 'should not allow more words than fit on 16 bits', ->
       fullChain.next['overflow'] = 1
-      fn = -> generate.getWords fullChain
+      fn = -> encode.getWords fullChain
       fn.should.throw Error, 'too-many-words'
 
   describe '#getLengths', ->
     it 'should include empty words', ->
-      generate.getLengths generate.getWords exampleChain1
+      encode.getLengths encode.getWords exampleChain1
       .should.deep.equal [[0, 1], [1, 3], [2, 1], [5, 1]]
     it 'should work with larger lists', ->
-      generate.getLengths wordList1
+      encode.getLengths wordList1
       .should.deep.equal [[1, 9], [2, 90], [3, 900], [4, 201]]
     it 'ignore empty lists', ->
-      generate.getLengths []
+      encode.getLengths []
       .should.deep.equal []
 
   describe '#writePairOfLengths', ->
     it 'should work with an offset', ->
-      lengths = generate.getLengths generate.getWords exampleChain1
+      lengths = encode.getLengths encode.getWords exampleChain1
       v = new Uint8Array 4 * (1 + 2 * lengths.length)
-      generate.writePairOfLengths v, 32, lengths
+      encode.writePairOfLengths v, 32, lengths
       v.should.deep.equal new Uint8Array split32in8 [
         0, 0, 1, 1, 3, 2, 1, 5, 1
       ]
     it 'should work with larger lists', ->
-      lengths = generate.getLengths wordList1
+      lengths = encode.getLengths wordList1
       v = new Uint8Array 4 * 2 * lengths.length
-      generate.writePairOfLengths v, 0, lengths
+      encode.writePairOfLengths v, 0, lengths
       v.should.deep.equal new Uint8Array split32in8 [
         1, 9, 2, 90, 3, 900, 4, 201
       ]
 
   describe '#getWordToNumberMap', ->
     it 'should work with small lists', ->
-      generate.getWordToNumberMap generate.getWords exampleChain1
+      encode.getWordToNumberMap encode.getWords exampleChain1
       .should.deep.equal
         '': 0
         a: 1
@@ -201,19 +201,19 @@ describe 'generate', ->
   describe '#writeWordList', ->
     it 'should work with simple words', ->
       v = new Uint8Array 11
-      generate.writeWordList v, 8, wordList2
+      encode.writeWordList v, 8, wordList2
       v.should.deep.equal new Uint8Array [
         0, 97, 98, 98, 99, 99, 100, 100, 100, 100, 0
       ]
 
   describe '#Header', ->
-    h = new generate.Header
+    h = new encode.Header
     describe '#setWordLengthsLen', ->
       it 'should work with small lists', ->
-        h.setWordLengthsLen generate.getLengths generate.getWords exampleChain1
+        h.setWordLengthsLen encode.getLengths encode.getWords exampleChain1
         h.wordLengthsLen.should.equal 4
       it 'should work with big lists', ->
-        h.setWordLengthsLen generate.getLengths wordList1
+        h.setWordLengthsLen encode.getLengths wordList1
         h.wordLengthsLen.should.equal 4
     describe '#setWordSize', ->
       it 'should work with small lists', ->
@@ -249,7 +249,7 @@ describe 'generate', ->
           a: {a: 1, b: 2, c: 3, d: 4, e: 5}
           b: {b: 1000, cc: 1}
           c: {a: 1}
-        h.setWordSize generate.getWords chain
+        h.setWordSize encode.getWords chain
         h.setContListAndWeightSizes chain
         h.setChainBytesLen chain
         full = 8 + (3 * 3) + 8 * (3 + 10)
@@ -283,7 +283,7 @@ describe 'generate', ->
 
 describe 'decode', ->
   chain = getASimpleChain()
-  encoder = new generate.Encoder chain
+  encoder = new encode.Encoder chain
   binary = encoder.encode()
   describe '#Header', ->
     describe '#decode', ->
@@ -365,7 +365,7 @@ describe 'decode', ->
         for wTuple, conts of chain
           sum = 0
           sum += weight for word, weight of conts
-          nTuple = generate.getNumberTuple encoder.header.wordSize, wTuple,
+          nTuple = encode.getNumberTuple encoder.header.wordSize, wTuple,
               encoder.map
           s = decoder.sumWeights nTuple
           s.should.equal sum
