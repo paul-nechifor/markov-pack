@@ -38,6 +38,8 @@ exports.Decoder = class Decoder
     @lengths = getLengths @binary, @header.lengthsOffset, @header.wordLengthsLen
     @header.compute @lengths
     @wordsOffset = @header.wordListOffset / 8
+    @hashOffset = @header.hashTableOffset
+    @hashElemSize = @header.wordTupleSize + @header.offsetSize
 
   getWord: (index) ->
     lens = @lengths
@@ -55,6 +57,18 @@ exports.Decoder = class Decoder
     for i in [start .. start + length - 1]
       str += String.fromCharCode @binary[@wordsOffset + i]
     str
+
+  getContOffset: (tuple) ->
+    i = tuple
+    totalLooped = 0
+    while true
+      start = @hashOffset + (i % @header.hashTableLen) * @hashElemSize
+      # TODO: See why a!=b but 0==a-b. WTF!?
+      if 0 is tuple - read @binary, start, @header.wordTupleSize
+        return read @binary, start + @header.wordTupleSize, @header.offsetSize
+      i++
+      if ++totalLooped >= @header.hashTableLen
+        throw new Error 'no-such-key'
 
 exports.readBinary = read = (v, start, size) ->
   mask = 0xff

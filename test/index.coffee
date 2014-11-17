@@ -346,6 +346,14 @@ describe 'decode', ->
           words.push decoder.getWord i
         words.should.deep.equal encoder.words
 
+    describe '#getContOffset', ->
+      it 'should get the offsets correctly', ->
+        correctOffsets = encoder.offsets
+        offsets = {}
+        for tuple, offset of correctOffsets
+          offsets[tuple] = decoder.getContOffset tuple
+        offsets.should.deep.equal correctOffsets
+
   describe '#readBytes', ->
     for i in [0 .. readWriteData.length - 1] by 2
       do (i) ->
