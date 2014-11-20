@@ -98,7 +98,7 @@ getMostPopularWords = (sentences, max) ->
   list.push [w, c] for w, c of count
   list.sort (a, b) -> b[1] - a[1]
   good = {}
-  for i in [0 .. max - 1]
+  for i in [0 .. max - 1] by 1
     good[list[i]] = true
   good
 

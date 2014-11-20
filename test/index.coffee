@@ -8,7 +8,7 @@ require('chai').should()
 
 createWordList = (n) ->
   ret = []
-  for i in [1 .. n]
+  for i in [1 .. n] by 1
     ret.push '' + i
   ret
 
@@ -136,7 +136,7 @@ describe 'encode', ->
   describe '#getWords', ->
     next = {}
     # Start from 3 since 'next' and '' are also words.
-    for i in [3 .. encode.MAX_WORDS]
+    for i in [3 .. encode.MAX_WORDS] by 1
       next['' + i] = 1
     fullChain = next: next
     it 'should include empty words', ->
@@ -231,7 +231,7 @@ describe 'encode', ->
         h.hashTableLen.should.equal 5
       it 'should work with big chains', ->
         chain = {}
-        for i in [1 .. 1234]
+        for i in [1 .. 1234] by 1
           chain[i] = {'1': 1}
         h.setChainLen chain
         h.chainLen.should.equal 1234
@@ -342,7 +342,7 @@ describe 'decode', ->
     describe '#getWord', ->
       it 'should be able to get all the words', ->
         words = []
-        for i in [0 .. encoder.words.length - 1]
+        for i in [0 .. encoder.words.length - 1] by 1
           words.push decoder.getWord i
         words.should.deep.equal encoder.words
 

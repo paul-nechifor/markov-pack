@@ -54,7 +54,7 @@ exports.Decoder = class Decoder
     length = lens[k][0]
     return '' if length is 0
     str = ''
-    for i in [start .. start + length - 1]
+    for i in [start .. start + length - 1] by 1
       str += String.fromCharCode @binary[@wordsOffset + i]
     str
 
@@ -76,7 +76,7 @@ exports.Decoder = class Decoder
     sum = 0
     elemSize = @header.wordSize + @header.weightSize
     start += @header.wordSize
-    for i in [0 .. nConts - 1]
+    for i in [0 .. nConts - 1] by 1
       s = read @binary, start + i * elemSize, @header.weightSize
       sum += s
     sum
@@ -105,7 +105,7 @@ exports.readBinary = read = (v, start, size) ->
 
 getLengths = (v, offset, len) ->
   ret = []
-  for i in [0 .. len - 1]
+  for i in [0 .. len - 1] by 1
     ret.push [
       read v, offset + 64 * i, 32
       read v, offset + 64 * i + 32, 32

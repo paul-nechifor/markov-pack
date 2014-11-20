@@ -99,7 +99,7 @@ exports.addToChain = (chain, seq) ->
   return if len < 3
   for word in seq
     throw new Error 'tab-not-allowed' if /\t/.exec word
-  for i in [0 .. len - 3]
+  for i in [0 .. len - 3] by 1
     key = seq[i] + '\t' + seq[i + 1]
     word = seq[i + 2]
     next = chain[key]
@@ -225,7 +225,7 @@ exports.writeChain = writeChain = (header, v, chain, map) ->
 
 exports.getHashTable = getHashTable = (offsets, length) ->
   v = []
-  v.push null for i in [1 .. length]
+  v.push null for i in [1 .. length] by 1
   for tuple, offset of offsets
     tuple = Number tuple
     hash = tuple % length
@@ -246,7 +246,7 @@ exports.writeHashTable = writeHashTable = (header, v, table) ->
 nextPrime = (n) ->
   n++ if n % 2 is 0
   while true
-    for i in [2 .. n / 2]
+    for i in [2 .. n / 2] by 1
       if n % i is 0
         n++
         continue
