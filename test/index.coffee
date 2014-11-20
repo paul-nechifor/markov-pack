@@ -23,18 +23,18 @@ getASimpleChain = ->
     encode.addToChain chain, s.split ' '
   chain
 
-checkConversion = (vSize, start, size, n, vCorrect) ->
-  v = new Uint8Array vSize
+checkConversion = (start, size, n, vCorrect) ->
+  v = new Uint8Array vCorrect.length
   encode.writeBinary v, start, size, n
   v.should.deep.equal new Uint8Array vCorrect
 
-checkDeconversion = (vSize, start, size, n, vCorrect) ->
+checkDeconversion = (start, size, n, vCorrect) ->
   v = new Uint8Array vCorrect
   decode.readBinary v, start, size
   .should.deep.equal n
 
-checkConversion2 = (vSize, start1, size1, n1, start2, size2, n2, vCorrect) ->
-  v = new Uint8Array vSize
+checkConversion2 = (start1, size1, n1, start2, size2, n2, vCorrect) ->
+  v = new Uint8Array vCorrect.length
   encode.writeBinary v, start1, size1, n1
   encode.writeBinary v, start2, size2, n2
   v.should.deep.equal new Uint8Array vCorrect
@@ -63,37 +63,37 @@ wordList2 = ['', 'a', 'bb', 'cc', 'dddd']
 
 readWriteData = [
   'should work with aligned full bytes'
-  [4, 0, 24, 0x010203, [0x01, 0x02, 0x03, 0x00]]
+  [0, 24, 0x010203, [0x01, 0x02, 0x03, 0x00]]
   'should work with single bytes'
-  [1, 0, 8, 153, [153]]
+  [0, 8, 153, [153]]
   'should work with incomplete first byte'
-  [1, 0, 4, 0xf, [0xf0]]
+  [0, 4, 0xf, [0xf0]]
   'should work with incomplete offset first byte'
-  [1, 2, 4, 0xf, [0x3c]]
+  [2, 4, 0xf, [0x3c]]
   'should work with incomplete last byte'
-  [2, 0, 12, 0xfff, [0xff, 0xf0]]
+  [0, 12, 0xfff, [0xff, 0xf0]]
   'should work with a byte across alignment'
-  [2, 4, 8, 0xff, [0x0f, 0xf0]]
+  [4, 8, 0xff, [0x0f, 0xf0]]
   'should work with aligned offsets'
-  [4, 8, 16, 0xffff, [0x00, 0xff, 0xff, 0x00]]
+  [8, 16, 0xffff, [0x00, 0xff, 0xff, 0x00]]
   'should work with non aligned offsets'
-  [3, 4, 16, 0xffff, [0x0f, 0xff, 0xf0]]
+  [4, 16, 0xffff, [0x0f, 0xff, 0xf0]]
   'should work with 1 bit'
-  [1, 4, 1, 1, [0x08]]
+  [4, 1, 1, [0x08]]
   'should work with 1 bit in first byte'
-  [3, 7, 9, 0x1ff, [0x01, 0xff, 0x00]]
+  [7, 9, 0x1ff, [0x01, 0xff, 0x00]]
   'should work with 1 bit in last byte'
-  [3, 8, 9, 0x1ff, [0x00, 0xff, 0x80]]
+  [8, 9, 0x1ff, [0x00, 0xff, 0x80]]
   'should work with 1 bit in the first and last byte'
-  [3, 7, 10, 0x3ff, [0x01, 0xff, 0x80]]
+  [7, 10, 0x3ff, [0x01, 0xff, 0x80]]
   'should be able to work with 32 bits without an offset'
-  [4, 0, 32, 0x12345678, [0x12, 0x34, 0x56, 0x78]]
+  [0, 32, 0x12345678, [0x12, 0x34, 0x56, 0x78]]
   'should be able to work with 32 bits with an aligned offset'
-  [5, 8, 32, 0x12345678, [0x00, 0x12, 0x34, 0x56, 0x78]]
+  [8, 32, 0x12345678, [0x00, 0x12, 0x34, 0x56, 0x78]]
   'should be able to work with 32 bits with a non aligned offset'
-  [5, 4, 32, 0x12345678, [0x01, 0x23, 0x45, 0x67, 0x80]]
+  [4, 32, 0x12345678, [0x01, 0x23, 0x45, 0x67, 0x80]]
   'should be able to work with 32 bits with a long offset'
-  [10, 40, 32, 0x12345678, [0, 0, 0, 0, 0, 0x12, 0x34, 0x56, 0x78, 0]]
+  [40, 32, 0x12345678, [0, 0, 0, 0, 0, 0x12, 0x34, 0x56, 0x78, 0]]
 ]
 
 ###
@@ -194,9 +194,9 @@ describe 'encode', ->
         it readWriteData[i], ->
           checkConversion.apply null, readWriteData[i + 1]
     it 'should work with two writes', ->
-      checkConversion2 3, 0, 8, 0xff, 16, 8, 0xff, [0xff, 0x00, 0xff]
+      checkConversion2 0, 8, 0xff, 16, 8, 0xff, [0xff, 0x00, 0xff]
     it 'should work with two same byte writes', ->
-      checkConversion2 1, 0, 2, 0x3, 6, 2, 0x3, [0xc3]
+      checkConversion2 0, 2, 0x3, 6, 2, 0x3, [0xc3]
 
   describe '#writeWordList', ->
     it 'should work with simple words', ->
