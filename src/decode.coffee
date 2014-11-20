@@ -75,7 +75,7 @@ exports.Decoder = class Decoder
     nConts = read @binary, start, @header.contListSize
     sum = 0
     elemSize = @header.wordSize + @header.weightSize
-    start += @header.wordSize
+    start += @header.wordSize + @header.contListSize
     for i in [0 .. nConts - 1] by 1
       s = read @binary, start + i * elemSize, @header.weightSize
       sum += s
