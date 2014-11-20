@@ -69,6 +69,7 @@ exports.Decoder = class Decoder
       i++
       if ++totalLooped >= @header.hashTableLen
         throw new Error 'no-such-key'
+    return
 
   sumWeights: (tuple) ->
     start = @header.chainOffset + @getContOffset(tuple)

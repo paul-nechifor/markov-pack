@@ -189,9 +189,7 @@ exports.writeWordList = writeWordList = (v, offset, words) ->
 
 exports.getNumberTuple = getNumberTuple = (wordSize, tuple, map) ->
   parts = tuple.split '\t'
-  # The number should never be 0 since that's used in the hashTable to indicate
-  # an unused position. That's why 1 is added. TODO: Write this in the readme.
-  ((map[parts[0]] << wordSize) | map[parts[1]]) + 1
+  (map[parts[0]] << wordSize) | map[parts[1]]
 
 exports.writeChain = writeChain = (header, v, chain, map) ->
   offset = OFFSET_WASTE
