@@ -40,4 +40,4 @@ exports.Header = class Header
     @totalByteSize = @chainOffset / 8 + @chainBytesLen
 
 exports.log2Ceil = log2Ceil = (n) ->
-  Math.ceil Math.log(n) / Math.LN2
+  Math.ceil Math.log(n + 1) / Math.LN2
