@@ -85,7 +85,7 @@ exports.Encoder = class Encoder
 # Splits a sentence into words that can be added to the chain.
 exports.splitSentence = (s) ->
   s = s.trim()
-  if s[s.length - 1] in ['.', '!', '?']
+  if s[s.length - 1] in common.endPunctuation
     end = s[s.length - 1]
     s = s.substring(0, s.length - 1).trim()
   ret = s.split /\s+/

@@ -377,9 +377,13 @@ describe 'decode', ->
 
     describe '#getSequence', ->
       it 'should return', ->
-        seq = decoder.getSequence()
-        console.log seq
-        seq.length.should.be.at.least 1
+        decoder.getSequence().length
+        .should.be.at.least 1
+
+    describe '#joinSequence', ->
+      it 'should return', ->
+        decoder.joinSequence(decoder.getSequence()).length
+        .should.be.at.least 3
 
   describe '#readBytes', ->
     for i in [0 .. readWriteData.length - 1] by 2

@@ -1,5 +1,7 @@
 exports.magicNumber = [0x13e3ff45, 0xbe9c06]
 
+exports.endPunctuation = ['.', '!', '?']
+
 exports.Header = class Header
   constructor: ->
     @magicNumber = exports.magicNumber

@@ -114,6 +114,12 @@ exports.Decoder = class Decoder
       [w0, w1] = [w1, next]
     return
 
+  joinSequence: (seq) ->
+    if seq[seq.length - 1] in common.endPunctuation
+      seq.slice(0, seq.length - 1).join(' ') + seq[seq.length - 1]
+    else
+      seq.join(' ')
+
 exports.readBinary = read = (v, start, size) ->
   mask = 0xff
   startByte = start // 8
