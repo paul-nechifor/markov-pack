@@ -102,6 +102,18 @@ exports.Decoder = class Decoder
       return word if runningSum > pick
     return
 
+  getSequence: ->
+    ret = []
+    w0 = w1 = 0
+
+    while true
+      tuple = (w0 << @header.wordSize) | w1
+      next = @nextWord tuple
+      return ret if next is 0
+      ret.push @getWord next
+      [w0, w1] = [w1, next]
+    return
+
 exports.readBinary = read = (v, start, size) ->
   mask = 0xff
   startByte = start // 8

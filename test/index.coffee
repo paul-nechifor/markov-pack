@@ -375,6 +375,12 @@ describe 'decode', ->
         decoder.nextWord 0
         .should.equal encoder.map['the']
 
+    describe '#getSequence', ->
+      it 'should return', ->
+        seq = decoder.getSequence()
+        console.log seq
+        seq.length.should.be.at.least 1
+
   describe '#readBytes', ->
     for i in [0 .. readWriteData.length - 1] by 2
       do (i) ->
