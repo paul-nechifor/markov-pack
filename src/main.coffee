@@ -48,7 +48,6 @@ generate = (inFile, n, cb) ->
     decoder.decode()
     for i in [1 .. n] by 1
       sentence = decoder.joinSequence decoder.getSequence()
-      console.log sentence
     cb()
 
 trim = (inFile, outFile, maxWords, cb)->
