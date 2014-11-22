@@ -1,6 +1,7 @@
 fs = require 'fs'
 optimist = require 'optimist'
 encode = require './encode'
+decode = require './decode'
 
 module.exports = main = ->
   argv = optimist
@@ -24,17 +25,31 @@ module.exports = main = ->
   .default 'max-words', 0x4000
   .describe 'max-words', 'Maximum number of words to trim to.'
 
+  .alias 'g', 'generate'
+  .describe 'g', 'Use the file to generate new sentences.'
+
+  .default 'n', 100
+  .describe 'n', 'The number of sentences to generate.'
+
   .argv
 
+  cb = (err) -> throw err if err
+
   return optimist.showHelp() if argv.h
+  return trim argv.in, argv.out, argv['max-words'], cb if argv.trim
+  return generate argv.generate, argv.n, cb if argv.generate
+  makeBinaryChain argv.in, argv.out, cb
 
-  if argv.trim
-    trim argv.in, argv.out, argv['max-words'], (err) ->
-      throw err if err
-    return
-
-  makeBinaryChain argv.in, argv.out, (err) ->
-    throw err if err
+generate = (inFile, n, cb) ->
+  readFile inFile, 'binary', (err, data) ->
+    return cb err if err
+    binary = new Buffer data, 'binary'
+    decoder = new decode.Decoder binary
+    decoder.decode()
+    for i in [1 .. n] by 1
+      sentence = decoder.joinSequence decoder.getSequence()
+      console.log sentence
+    cb()
 
 trim = (inFile, outFile, maxWords, cb)->
   readLines inFile, (err, lines) ->
@@ -47,7 +62,7 @@ trim = (inFile, outFile, maxWords, cb)->
     writeTop outFile, lines, top, cb
 
 makeBinaryChain = (inFile, outFile, cb) ->
-  readFile inFile, (err, data) ->
+  readFile inFile, 'utf8', (err, data) ->
     return cb err if err
     lines = data.split '\n'
     chain = {}
@@ -57,9 +72,9 @@ makeBinaryChain = (inFile, outFile, cb) ->
     binary = encoder.encode()
     writeBinary outFile, new Buffer(binary), cb
 
-readFile = (name, cb) ->
+readFile = (name, encoding, cb) ->
   if name isnt '-'
-    return fs.readFile name, {encoding: 'utf8'}, cb
+    return fs.readFile name, {encoding: encoding}, cb
   chunks = []
   process.stdin.on 'data', (chunk) -> chunks.push chunk
   # TODO: Deal with the error.
@@ -72,7 +87,7 @@ writeBinary = (name, buffer, cb) ->
   cb()
 
 readLines = (inFile, cb) ->
-  readFile inFile, (err, data) ->
+  readFile inFile, 'utf8', (err, data) ->
     return cb err if err
     bad = data.split '\n'
     lines = []

@@ -1,6 +1,8 @@
 # Markov Pack
 
-A Node package for generating and using compacted Markov chains.
+A Node package for generating and using compacted Markov chains. Here's an example of what I use it for:
+
+> A Lax Equivalence Theorem for Multiple Perspective Views via Iterative Depth Estimation Algorithm with Admission Control Algorithm Combining Static and Interactive Distance Education Technical Specifications into Relational Database Design Using the Level Set Framework with Pairwise Constraints for Interval and Fuzzy ART Network for Computing Minimal-Norm Solutions to the Maximally Flat FIR Fractional Delay Filter and Linearized LNA Applied in Hydrology Domain.
 
 ## Specification
 
