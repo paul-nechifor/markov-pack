@@ -370,6 +370,11 @@ describe 'decode', ->
           decoder.sumWeights nTuple
           .should.equal sum
 
+    describe '#nextWord', ->
+      it 'should work with a single posiblility', ->
+        decoder.nextWord 0
+        .should.equal encoder.map['the']
+
   describe '#readBytes', ->
     for i in [0 .. readWriteData.length - 1] by 2
       do (i) ->

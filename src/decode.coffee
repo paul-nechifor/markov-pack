@@ -72,15 +72,35 @@ exports.Decoder = class Decoder
     return
 
   sumWeights: (tuple) ->
-    start = @header.chainOffset + @getContOffset(tuple)
+    start = @header.chainOffset + @getContOffset tuple
     nConts = read @binary, start, @header.contListSize
     sum = 0
     elemSize = @header.wordSize + @header.weightSize
     start += @header.wordSize + @header.contListSize
-    for i in [0 .. nConts - 1] by 1
+    for i in [0 ... nConts] by 1
       s = read @binary, start + i * elemSize, @header.weightSize
       sum += s
     sum
+
+  nextWord: (tuple) ->
+    sum = @sumWeights tuple
+    pick = (Math.random() * sum) | 0
+    runningSum = 0
+
+    start = @header.chainOffset + @getContOffset tuple
+    nConts = read @binary, start, @header.contListSize
+
+    elemSize = @header.wordSize + @header.weightSize
+    start += @header.contListSize
+
+    for i in [0 ... nConts] by 1
+      word = read @binary, start, @header.wordSize
+      start += @header.wordSize
+      s = read @binary, start, @header.weightSize
+      start += @header.weightSize
+      runningSum += s
+      return word if runningSum > pick
+    return
 
 exports.readBinary = read = (v, start, size) ->
   mask = 0xff
