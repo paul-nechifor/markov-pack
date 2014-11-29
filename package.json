@@ -1,6 +1,6 @@
 {
   "name": "markov-pack",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "author": "Paul Nechifor <paul@nechifor.net> (http://nechifor.net/)",
   "description": "Generate and use compacted Markov chains.",
   "main": "./lib",
