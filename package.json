@@ -8,16 +8,14 @@
     "markov-pack": "./bin/markov-pack.js"
   },
   "scripts": {
-    "preinstall": "rm -fr lib; coffee -cbo lib src",
+    "postinstall": "rm -fr lib; coffee -cbo lib src",
     "test": "mocha --compilers coffee:coffee-script/register"
   },
   "dependencies": {
-    "coffee-script": "^1.8.0",
-    "optimist": "^0.6.1"
-  },
-  "devDependencies": {
     "chai": "^1.9.2",
-    "mocha": "^2.0.1"
+    "coffee-script": "^1.8.0",
+    "mocha": "^2.0.1",
+    "optimist": "^0.6.1"
   },
   "repository": {
     "type": "git",
