@@ -1,3 +1,7 @@
+# This repository has been moved to [gitlab.com/paul-nechifor/markov-pack](http://gitlab.com/paul-nechifor/markov-pack).
+
+Old readme:
+
 # Markov Pack
 
 A Node package for generating and using compacted Markov chains. I use it [to
